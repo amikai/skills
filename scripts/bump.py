@@ -1,9 +1,13 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
 """Bump the plugin version across every manifest that carries one.
 
 Usage:
-  python3 scripts/bump.py patch|minor|major|<x.y.z>  # rewrite manifests
-  python3 scripts/bump.py --check                    # exit 1 on version drift
+  uv run scripts/bump.py patch|minor|major|<x.y.z>  # rewrite manifests
+  uv run scripts/bump.py --check                    # exit 1 on version drift
 """
 import json
 import re
