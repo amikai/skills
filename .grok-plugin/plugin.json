@@ -1,0 +1,10 @@
+{
+  "name": "amikai-skills",
+  "version": "0.1.0",
+  "description": "amikai's personal Agent Skills for coding agents.",
+  "author": { "name": "amikai" },
+  "homepage": "https://github.com/amikai/skills",
+  "repository": "https://github.com/amikai/skills",
+  "license": "MIT",
+  "keywords": ["grok", "plugin", "skills"]
+}

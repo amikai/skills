@@ -1,0 +1,12 @@
+{
+  "name": "amikai-skills",
+  "owner": { "name": "amikai" },
+  "description": "amikai's personal Agent Skills for coding agents",
+  "plugins": [
+    {
+      "name": "amikai-skills",
+      "source": "./",
+      "description": "All skills bundled together"
+    }
+  ]
+}

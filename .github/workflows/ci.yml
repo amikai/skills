@@ -1,0 +1,22 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON manifests
+        run: |
+          for f in plugin.json .claude-plugin/*.json .codex-plugin/*.json .grok-plugin/*.json; do
+            python3 -m json.tool "$f" > /dev/null || exit 1
+            echo "OK $f"
+          done
+      - name: Catalog up to date
+        run: python3 scripts/gen_catalog.py --check
+      - name: Versions consistent
+        run: python3 scripts/bump.py --check
