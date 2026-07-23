@@ -45,8 +45,7 @@ codex plugin add amikai-skills@amikai-skills
 <summary><strong>Grok</strong></summary>
 
 ```bash
-grok plugin marketplace add amikai/skills
-grok plugin install amikai-skills@amikai-skills
+grok plugin install amikai/skills
 ```
 
 </details>
