@@ -1,9 +1,13 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
 """Regenerate the README Catalog table from skills/*/SKILL.md frontmatter.
 
 Usage:
-  python3 scripts/gen_catalog.py          # rewrite README.md in place
-  python3 scripts/gen_catalog.py --check  # exit 1 if README.md is stale
+  uv run scripts/gen_catalog.py          # rewrite README.md in place
+  uv run scripts/gen_catalog.py --check  # exit 1 if README.md is stale
 """
 import re
 import sys
