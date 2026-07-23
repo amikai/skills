@@ -32,9 +32,9 @@ documented way to run them.
 
 3. **Callers updated**: `.github/workflows/ci.yml` and `README.md`
    invoke `uv run scripts/xxx.py` instead of `python3 scripts/xxx.py`.
-   GitHub's `ubuntu-latest` runner ships uv preinstalled, so no extra
-   setup step is needed. The generic `python3 -m json.tool` manifest
-   check in CI is out of scope and unchanged.
+   CI installs uv via `astral-sh/setup-uv` (the runner image does not
+   ship it). The generic `python3 -m json.tool` manifest check in CI
+   is out of scope and unchanged.
 
 ## Verification
 
