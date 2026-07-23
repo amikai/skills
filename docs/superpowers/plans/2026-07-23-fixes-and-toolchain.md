@@ -462,13 +462,13 @@ git commit -m "ci: validate manifests, catalog freshness, version consistency"
 
 **Files:** none (git/gh only)
 
-- [ ] **Step 1: Push the branch**
+- [x] **Step 1: Push the branch**
 
 ```bash
 git push -u origin toolchain
 ```
 
-- [ ] **Step 2: Open PR #2 stacked on PR #1's branch**
+- [x] **Step 2: Open PR #2 stacked on PR #1's branch**
 
 ```bash
 gh pr create --base scaffold-plugin-manifests --title "Catalog generation, version bump tooling, and CI" --body "$(cat <<'EOF'
