@@ -13,9 +13,7 @@ Write clear, structured Pull Request (PR) and Merge Request (MR) titles and
 descriptions for reviewers and future maintainers inspecting repository
 history.
 
-A good PR description communicates the motivation, high-level approach,
-testing strategy, and potential risks without repeating line-by-line diffs
-that reviewers can already see in the code view.
+**The PR description must focus on high-level description, architecture, and intent.** A good description explains the goals and impact of the change, rather than repeating low-level implementation details or line-by-line code edits that reviewers can already see in the diff.
 
 Before drafting or updating a PR description, inspect the complete set of
 changes between the base branch and the head branch.
@@ -56,21 +54,20 @@ made, **what** changed at a high level, and **how** it was verified.
 
 Adjust the level of detail based on complexity and risk:
 - Small, low-risk changes (e.g. minor bug fix or typo) need only a concise
-  overview and verification note.
-- Large features, architectural refactors, or security fixes require full
-  structured sections and visual diagrams (e.g. Mermaid).
+  high-level overview and verification note.
+- Large features, architectural refactors, or security fixes require structured sections and visual diagrams (e.g. Mermaid) focusing on the system design.
 
 ### Recommended Sections
 
 ```markdown
 ## Summary
 
-A concise (1–3 sentence) overview of what this PR does and the problem it solves.
+A concise (1–3 sentence) high-level overview of what this PR accomplishes.
 
 ## Motivation & Context
 
 Why is this change necessary? Link relevant issues or tasks (`Closes #123`, `Refs #456`).
-Include relevant background, design constraints, or trade-offs considered.
+Explain the high-level problem and system constraints.
 
 ## Architecture & Diagrams
 
@@ -80,13 +77,13 @@ or state transitions.
 
 ## Key Changes
 
-Group major changes into logical bullet points:
+Group major changes into logical high-level bullet points:
 - **Component / Subsystem**: High-level description of changes or new capabilities.
 - **API / Schema**: Any added, modified, or deprecated interfaces.
 
 ## Verification & Testing
 
-Explain how the changes were tested:
+Explain how the changes were verified at a high level:
 - Automated tests run (e.g., `npm test`, `go test ./...`).
 - Manual testing steps executed.
 - Edge cases verified.
@@ -113,8 +110,9 @@ For complex PRs, structural refactors, multi-service integrations, or state mach
 
 ## Sizing & Detail Guidelines
 
-- **Conciseness**: Write for busy reviewers. Prefer structured bullet points and visual diagrams over long dense paragraphs.
-- **Diff vs Description**: Do not list filenames line-by-line or summarize what git diff already makes obvious. Focus on intent, design rationale, and non-obvious consequences.
+- **High-Level Focus**: Prioritize architectural patterns, API contracts, user-visible changes, and side-effects. Do not list minor helper renames, code formatting, or local variable edits.
+- **Diff vs Description**: The description is for explaining *intent*, *meaning*, and *design choice*. Do not repeat what the git diff view already makes obvious.
+- **Conciseness**: Write for busy reviewers. Prefer structured high-level bullet points and diagrams over long dense paragraphs.
 - **Screenshots & Media**: For visual UI changes, include before/after screenshots or short screen recordings when possible.
 
 ## Honesty & Hygiene
