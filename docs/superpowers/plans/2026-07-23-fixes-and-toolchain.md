@@ -410,7 +410,7 @@ git commit -m "feat: version bump script with drift check"
 **Interfaces:**
 - Consumes: `scripts/gen_catalog.py --check` (Task 2), `scripts/bump.py --check` (Task 3).
 
-- [ ] **Step 1: Write `.github/workflows/ci.yml`**
+- [x] **Step 1: Write `.github/workflows/ci.yml`**
 
 ```yaml
 name: ci
@@ -437,7 +437,7 @@ jobs:
         run: python3 scripts/bump.py --check
 ```
 
-- [ ] **Step 2: Run every CI step locally**
+- [x] **Step 2: Run every CI step locally**
 
 ```bash
 for f in plugin.json .claude-plugin/*.json .codex-plugin/*.json .grok-plugin/*.json; do
@@ -449,7 +449,7 @@ python3 scripts/bump.py --check
 
 Expected: `OK` for 6 files (root `plugin.json`; claude plugin + marketplace; codex plugin + marketplace; grok plugin — its marketplace.json was deleted in Task 1), then `catalog up to date`, then `versions consistent: 0.1.0`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
