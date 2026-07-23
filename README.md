@@ -64,6 +64,7 @@ npx skills add amikai/skills
 <!-- catalog:start -->
 | Skill | What it does | Path |
 |-------|--------------|------|
+| [commit-msg](skills/commit-msg/) | Use when writing a git commit message | `skills/commit-msg/` |
 <!-- catalog:end -->
 
 To add a skill: create `skills/<name>/SKILL.md`, then run `uv run scripts/gen_catalog.py`.
