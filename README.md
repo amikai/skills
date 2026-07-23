@@ -64,7 +64,7 @@ npx skills add amikai/skills
 <!-- catalog:start -->
 | Skill | What it does | Path |
 |-------|--------------|------|
-| [commit-msg](skills/commit-msg/) | Use when writing a git commit message | `skills/commit-msg/` |
+| [commit-msg](skills/commit-msg/) | Write, rewrite, or review clear, concise Git commit messages. Use when drafting, validating, or supplying a message for git commit. Defaults to an outcome-focused Conventional Commit subject and scales body detail to complexity and risk. | `skills/commit-msg/` |
 <!-- catalog:end -->
 
 To add a skill: create `skills/<name>/SKILL.md`, then run `uv run scripts/gen_catalog.py`.
