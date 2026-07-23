@@ -3,123 +3,97 @@ name: pull-request
 description: >
   Draft, rewrite, or review clear, structured Pull Request (PR) and Merge
   Request (MR) titles and descriptions. Use when opening a PR, updating a
-  PR summary, or reviewing existing PR text. Scales body detail to change
-  complexity and risk, including Mermaid diagrams for architectural changes.
+  PR summary, or reviewing existing PR text. Focuses on high-level architecture
+  and intent, incorporating Mermaid diagrams.
 ---
 
 # Pull Requests
 
-Write clear, structured Pull Request (PR) and Merge Request (MR) titles and
-descriptions for reviewers and future maintainers inspecting repository
-history.
+Write clear, structured Pull Request (PR) and Merge Request (MR) titles and descriptions focusing on high-level architecture, intent, and goals.
 
-**The PR description must focus on high-level description, architecture, and intent.** A good description explains the goals and impact of the change, rather than repeating low-level implementation details or line-by-line code edits that reviewers can already see in the diff.
+## Core Philosophy
 
-Before drafting or updating a PR description, inspect the complete set of
-changes between the base branch and the head branch.
+- **Focus on Intent & Architecture**: Explain the goals and impact of the change. Do not repeat low-level code edits or line-by-line diffs that are already visible in the code view.
+- **The 5-Minute Rule**: Reviewers should be able to grasp the purpose, context, and approach of your PR within 5 minutes. If not, simplify the description.
+- **The Self-Review**: Treat writing the PR description as the first review of your own code. It forces you to validate design decisions and catch obvious errors before notifying others.
+- **Keep PRs Small and Focused**: Build PRs around a single, cohesive goal. Do not mix unrelated changes (e.g., refactoring + new feature). Use Draft PRs for work-in-progress.
 
-## Context Gathering
+## Context & Reviewer Guidance
 
-Inspect the changes being proposed before drafting the description:
+Before drafting or rewriting, run `git log <base>..HEAD` and
+`git diff <base>...HEAD` to inspect changes. Check repository PR templates in
+`.github/` or `.gitlab/`, plus linked issues, specifications, and design docs.
+Describe only work actually present in the diff.
 
-- Run `git log <base-branch>..HEAD` (or `git log origin/main..HEAD`) to
-  review all commits included in the PR.
-- Run `git diff <base-branch>...HEAD` to inspect the unified changes.
-- Check linked issues, task specifications, or design documents for
-  motivation, background context, and requirements.
+When reviewing existing PR text:
+- Read the current PR title and body before proposing changes (use the hosting
+  platform's CLI or UI when available, such as `gh pr view --json title,body`).
+- Compare the title and body with the diff, repository template, and linked
+  requirements. Identify missing, inaccurate, or unsupported claims.
+- Report findings first, grouped by severity, then provide suggested wording or
+  a revised description.
 
-Describe only the material changes present in the diff. Never document
-uncommitted local changes or planned follow-up work as part of the current
-PR.
-
-Follow repository-specific PR template guidelines when present in `.github/`
-or `.gitlab/`. Preserve the rules below wherever they still apply.
+For complex or large PRs:
+- **Suggest a Reading Order**: Provide a logical sequence for reviewing files (e.g., "Start with the schema change, then core handler, then tests").
+- **Specify Feedback Type**: Note what feedback you need (e.g., high-level design review, performance verification, security check, or simple sanity check).
 
 ## Title
 
-Unless the repository specifies another format, align the PR title with
-Conventional Commits: `<type>(<scope>): <outcome>`.
-
+Unless the repository specifies another format, use Conventional Commits: `<type>(<scope>): <outcome>`.
 - Types: `feat` `fix` `refactor` `perf` `docs` `test` `chore` `build` `ci` `style` `revert`.
-- Imperative mood, English, ≤72 characters preferred, no trailing period.
-- Focus on the outcome or intent, not raw code edits:
-  - `feat(auth): add multi-factor authentication support` (Good)
-  - `fix: update logic in user_service.go` (Poor)
-- Keep titles readable in pull request lists, release notes, and commit graphs.
+- Use imperative mood, English, ≤72 characters, no trailing period.
+- Focus on the outcome, not raw code edits (e.g., `feat(auth): add multi-factor authentication` instead of `fix: update logic in user_service.go`).
 
-## Description Body
+## Description Template
 
-Structure the description to help reviewers understand **why** the change was
-made, **what** changed at a high level, and **how** it was verified.
+Use these sections in the PR body (omit empty or irrelevant sections):
 
-Adjust the level of detail based on complexity and risk:
-- Small, low-risk changes (e.g. minor bug fix or typo) need only a concise
-  high-level overview and verification note.
-- Large features, architectural refactors, or security fixes require structured sections and visual diagrams (e.g. Mermaid) focusing on the system design.
-
-### Recommended Sections
+For a small, low-risk PR, a single concise paragraph is enough. Cover the
+change, its motivation or user impact, and verification without forcing the
+full section template or a diagram.
 
 ```markdown
 ## Summary
-
-A concise (1–3 sentence) high-level overview of what this PR accomplishes.
+A 1–3 sentence high-level overview of what this PR accomplishes.
 
 ## Motivation & Context
-
-Why is this change necessary? Link relevant issues or tasks (`Closes #123`, `Refs #456`).
-Explain the high-level problem and system constraints.
+Why is this change necessary? Link relevant issues (`Closes #123`, `Refs #456`) and explain the business impact or constraints.
 
 ## Architecture & Diagrams
-
-For complex or structural changes, include a Mermaid diagram (sequenceDiagram,
-flowchart, or stateDiagram) to visualize data flow, component interactions,
-or state transitions.
+For structural changes, include a Mermaid diagram (sequence, flowchart, state, ER) to visualize flows, transitions, or component interactions.
 
 ## Key Changes
+Logical high-level changes (e.g., subsystem updates, API contract updates). Avoid line-by-line file details.
 
-Group major changes into logical high-level bullet points:
-- **Component / Subsystem**: High-level description of changes or new capabilities.
-- **API / Schema**: Any added, modified, or deprecated interfaces.
+## Reviewer Guidance
+(Optional) Suggested file review sequence or specific areas requiring closer inspection.
 
 ## Verification & Testing
+Explain how the changes were verified (e.g., unit test commands run, manual verification steps executed).
 
-Explain how the changes were verified at a high level:
-- Automated tests run (e.g., `npm test`, `go test ./...`).
-- Manual testing steps executed.
-- Edge cases verified.
+## Risks & Rollout
+Known risks, monitoring signals, rollback steps, or security impact. Omit when irrelevant.
 
 ## Breaking Changes & Migration
-
-Highlight any breaking changes, required configuration updates, or database migration steps.
-Omit this section if there are no breaking changes.
+Required configuration updates, database migrations, or breaking API changes.
 ```
 
-## Diagrams & Visualizations (Mermaid)
+## Mermaid Diagrams
 
-For complex PRs, structural refactors, multi-service integrations, or state machine changes, **always use Mermaid diagrams** to help reviewers visualize the architecture and execution flow.
+Use Mermaid diagrams for complex refactors, multi-service integrations, or state machine changes to reduce reviewer cognitive load:
+- **Sequence Diagrams (`sequenceDiagram`)**: For multi-service request/response flows or async messaging.
+- **Flowcharts (`flowchart TD`)**: For logical routing, decision branching, or data pipelines.
+- **State Diagrams (`stateDiagram-v2`)**: For lifecycle states or finite state machines.
+- **Class/Entity Diagrams (`classDiagram` / `erDiagram`)**: For database schema or data model shifts.
 
-- **Sequence Diagrams (`sequenceDiagram`)**: Best for multi-service interactions, async event handling, or client-server request/response flows.
-- **Flowcharts (`flowchart TD` / `flowchart LR`)**: Best for decision branching, data pipeline steps, or algorithm logic.
-- **State Diagrams (`stateDiagram-v2`)**: Best for entity lifecycles, job statuses, or finite state machines.
-- **Class / Entity Diagrams (`classDiagram` / `erDiagram`)**: Best for data model shifts or database schema redesigns.
+*Guideline*: Keep diagrams focused strictly on the changed path. Test that syntax renders correctly in markdown preview.
 
-### Mermaid Syntax Guidelines
-- Keep diagrams concise and focused directly on the changed or affected flow; do not try to diagram the entire system.
-- Quote node labels containing special characters or parentheses.
-- Test that syntax renders cleanly in GitHub/GitLab markdown views.
+## Sizing, Honesty & Hygiene
 
-## Sizing & Detail Guidelines
-
-- **High-Level Focus**: Prioritize architectural patterns, API contracts, user-visible changes, and side-effects. Do not list minor helper renames, code formatting, or local variable edits.
-- **Diff vs Description**: The description is for explaining *intent*, *meaning*, and *design choice*. Do not repeat what the git diff view already makes obvious.
-- **Conciseness**: Write for busy reviewers. Prefer structured high-level bullet points and diagrams over long dense paragraphs.
-- **Screenshots & Media**: For visual UI changes, include before/after screenshots or short screen recordings when possible.
-
-## Honesty & Hygiene
-
-- **Scope Integrity**: Describe only work actually included in the PR diff.
-- **No Vanity or Fluff**: Avoid filler phrases like "This PR introduces an amazing improvement" or self-congratulatory remarks.
-- **No Harness Footers**: Omit AI attribution tags (e.g., `Generated by...`, `Co-Authored-By: AI...`) unless required by repository policies.
+- **Scope Integrity**: Describe only work actually present in the PR diff. Do not document uncommitted local changes or planned follow-ups.
+- **Evidence Only**: Never invent test results, impact, component ownership, or implementation details. State uncertainty or omit unsupported claims.
+- **No Vanity or Fluff**: Avoid filler text and AI-attribution footers.
+- **Visuals**: For UI changes, include before/after screenshots or recordings when available.
 
 ## Examples
 
@@ -128,16 +102,11 @@ For complex PRs, structural refactors, multi-service integrations, or state mach
 ```markdown
 # fix(auth): prevent session leak on logout error
 
-## Summary
-Fixes an edge case where session tokens were not invalidated if the upstream identity provider returned an error during logout.
-
-## Key Changes
-- Always remove local session tokens from memory before calling upstream logout.
-- Log identity provider logout errors as warnings instead of aborting session cleanup.
-
-## Verification
-- Added unit test `TestLogout_UpstreamError_ClearsLocalSession`.
-- Manually tested logout while forcing network failure to identity provider.
+Fixes an edge case where session tokens were not invalidated when the upstream
+identity provider returned an error during logout. Local tokens are now removed
+before the upstream call, and the failure path is logged as a warning. Added
+`TestLogout_UpstreamError_ClearsLocalSession` and manually tested logout during
+an identity-provider network failure.
 
 Closes #204
 ```
@@ -163,9 +132,6 @@ Fixes #512
 ## Verification & Testing
 - Benchmark tests run: `go test -bench=BenchmarkFuzzySearch ./search` showed <5ms P99 latency impact.
 - Ran integration tests covering exact match, fuzzy match, and zero-match scenarios.
-
-## Breaking Changes
-None. The fallback triggers only when exact search yields zero results.
 ```
 
 ### Complex Architectural Refactor PR (with Mermaid)
@@ -188,7 +154,7 @@ sequenceDiagram
     autonumber
     actor Client
     participant API as Order API
-    participant Queue as RabbitMQ (order.created)
+    participant Queue as "RabbitMQ (order.created)"
     participant Worker as Payment Worker
     participant DB as Postgres
 
