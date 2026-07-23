@@ -62,13 +62,15 @@ npx skills add amikai/skills
 ## Catalog
 
 <!-- catalog:start -->
-| Skill | What it does | Path |
-|-------|--------------|------|
-| [commit-msg](skills/commit-msg/) | Write, rewrite, or review clear, concise Git commit messages. Use when drafting, validating, or supplying a message for git commit. Defaults to an outcome-focused Conventional Commit subject and scales body detail to complexity and risk. | `skills/commit-msg/` |
-| [pull-request](skills/pull-request/) | Draft, rewrite, or review clear, structured Pull Request (PR) and Merge Request (MR) titles and descriptions. Use when opening a PR, updating a PR summary, or reviewing existing PR text. Focuses on high-level architecture and intent, incorporating Mermaid diagrams. | `skills/pull-request/` |
+| Skill | What it does |
+|-------|--------------|
+| [commit-msg](skills/commit-msg/) | Craft concise, outcome-focused commit messages with detail matched to complexity and risk. |
+| [pull-request](skills/pull-request/) | Craft reviewer-friendly PR/MR titles and descriptions focused on intent, architecture, and key changes, with diagrams when useful. |
 <!-- catalog:end -->
 
-To add a skill: create `skills/<name>/SKILL.md`, then run `uv run scripts/gen_catalog.py`.
+To add a skill: create `skills/<name>/SKILL.md`, run
+`uv run scripts/gen_catalog.py`, then simplify the generated Catalog
+description if needed.
 
 ## License
 
