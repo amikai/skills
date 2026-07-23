@@ -1,22 +1,36 @@
 ---
 name: commit-msg
-description: Use when writing a git commit message
+description: >
+  Write, rewrite, or review clear, concise Git commit messages. Use when
+  drafting, validating, or supplying a message for git commit. Defaults
+  to an outcome-focused Conventional Commit subject and scales body
+  detail to complexity and risk.
 ---
 
 # Commit Messages
 
-Treat commit messages as durable engineering records, not one-line
-summaries. Write for an outsider reading `git log` years from now, with
-no access to this conversation.
+Write clear, concise commit messages for people reading `git log`.
+Clarity comes first: choose the form and length that communicates the
+meaning most directly. Include enough context to understand the outcome
+and any non-obvious reason, but no detail that does not help the reader.
+Avoid long explanations unless the change's complexity requires them.
+If the subject is sufficient, stop there.
 
-Before writing, inspect the complete staged diff (`git diff --staged`)
-and relevant verification results, so the body accurately covers the
-whole commit. The message describes that diff — all of it, and nothing
-outside it: not the conversation, not the plan.
+Before writing, inspect the complete change being described: use the
+staged diff (`git diff --staged`) for a new commit and the corresponding
+commit diff when reviewing or rewriting an existing message. Use
+relevant verification results only as context. Describe the material
+changes in that diff and nothing outside it: not the conversation or
+the plan.
+
+Follow explicit repository-required commit syntax when it conflicts
+with this skill. Preserve the remaining rules wherever they still
+apply.
 
 ## Subject
 
-`<type>(<scope>): <outcome>` — Conventional Commits, always.
+Unless the repository requires another format, use Conventional
+Commits: `<type>(<scope>): <outcome>`.
 
 - Types: `feat` `fix` `refactor` `perf` `docs` `test` `chore` `build`
   `ci` `style` `revert`.
@@ -29,41 +43,47 @@ outside it: not the conversation, not the plan.
 
 ## Body
 
-Open with the problem, then describe the solution. Every non-trivial
-commit gets a body; subject-only is acceptable solely for trivial
-changes (a typo fix, a small documentation status update, an
-ignore-file adjustment).
+Use a body only when it materially improves the reader's understanding
+of why the change was needed or what non-obvious behavior results from
+it.
 
-The checklist below is a menu of dimensions, not a form. The first two
-items appear in every body; include each other item only when the
-change actually touches that dimension. Depth scales with blast
-radius: a local fix needs a few lines, a cross-module change needs the
-full record.
+When a body is needed, choose the form that makes its meaning clearest.
+Prefer a short list—usually two to four bullets—for distinct points,
+with one idea per bullet. Use a short paragraph when connected
+sentences make it easier to understand what happened, why it happened,
+and how the change addresses it. Do not repeat information in both
+forms.
 
-- **Problem first** — root cause, requirement, or motivation, and the
-  user-visible impact (what breaks, what misbehaves, who is affected).
-- **What is now true** — the concrete behavior now present in the
-  repository, naming the relevant modules, entry points, data
-  contracts, and ownership boundaries. Changed contracts (new required
-  config keys, altered defaults, API shape) always count as touched.
-- End-to-end data or control flow, when material to understanding.
-- Runtime semantics: caching, persistence, polling intervals,
-  concurrency, fallback behavior, error handling, compatibility,
-  migration behavior — including which cases are *not* handled (e.g.
-  which errors are retried and which are not).
-- Specific symbols, commands, configuration keys, durations, versions,
-  upstream revisions — name them. Never "a short TTL" when the number
-  is in the diff.
-- Bug fixes: the distilled, greppable error/backtrace lines — never
-  the full dump.
-- Verification added or exercised, when it helps explain the result.
-- Design decisions, considerations, and trade-offs the diff alone
-  cannot explain: why this approach, alternatives rejected,
-  constraints that shaped the design. Claims about performance,
-  memory, or size need numbers and the cost paid.
+Omit routine verification, scope boundaries, deferred work, non-goals,
+source attribution, catalogs, supporting artifacts, and exhaustive
+coverage of every dimension touched by the diff unless they directly
+affect users or compatibility.
 
-Short paragraphs, wrapped at 72. Body is mandatory for breaking
-changes, security fixes, data migrations, and reverts.
+Size the body by conceptual complexity and risk, not by line count or
+number of files. More than one paragraph is reserved for complex,
+non-obvious bug causes, breaking changes, security fixes, data
+migrations, and reverts. A body is mandatory for those cases.
+
+Use these as optional prompts, not a checklist:
+
+- What problem, requirement, or user-visible impact motivated the
+  change?
+- What behavior or contract is now different?
+- Which non-obvious runtime behavior, design constraint, decision, or
+  trade-off matters to future maintenance? Summarize the essential
+  reason and reference the relevant issue or design document for details
+  when useful.
+- For a bug fix, would a distilled, greppable error line help future
+  readers find this commit?
+- Are exact symbols, configuration keys, durations, versions, or
+  measured trade-offs necessary to make a claim precise?
+
+Omit routine implementation choices and do not reproduce the full issue
+discussion.
+
+In an exceptional body, include verification only when an unusual
+result or measurement is needed to support a claim. Keep paragraphs
+short, bullets concise, and wrap the body at 72 columns.
 
 ## Honesty
 
@@ -77,41 +97,41 @@ changes, security fixes, data migrations, and reverts.
 
 ## Footers
 
-`BREAKING CHANGE:` with migration notes; `Closes #N` / `Refs #N`; for
-regressions `Fixes: <12-char sha> ("subject of offending commit")` —
-never a bare SHA without its subject.
+Add footers only when applicable: `BREAKING CHANGE:` with migration
+notes; `Closes #N` / `Refs #N`; for regressions
+`Fixes: <12-char sha> ("subject of offending commit")` — never a bare
+SHA without its subject.
 
-## Example
+## Examples
 
-Real body, from Linux kernel commit 8173f7e2ce67 (Cen Zhang; review
-trailers omitted). Under this skill's subject rule it would read
-`fix(rhashtable): clear stale iter->p on table restart`.
+### Subject only
 
+```text
+docs: fix installation typo
 ```
-rhashtable: clear stale iter->p on table restart
 
-rhashtable_walk_start_check() has two restart paths when resuming a
-walk. When iter->walker.tbl is valid, it re-validates iter->p against
-the table and sets iter->p = NULL if the object is gone.  When
-iter->walker.tbl is NULL (table was freed during resize), it resets
-slot and skip but forgets to clear iter->p.
+### Ordinary change
 
-rhashtable_walk_next() then dereferences the stale iter->p, reading
-freed memory.  This is a use-after-free.
+```text
+feat: add commit message guidance
 
-Any caller that does multi-fragment rhashtable walks across
-walk_stop/walk_start boundaries is affected.  Concrete cases include
-netlink_diag (__netlink_diag_dump in net/netlink/diag.c) and TIPC
-(tipc_nl_sk_walk in net/tipc/socket.c).
+- Replace vague or exhaustive messages with concise, outcome-focused
+  guidance.
+- Scale body detail to risk and omit information that does not help the
+  reader.
+```
 
-Crash stack (netlink_diag):
-  BUG: KASAN: slab-use-after-free in rhashtable_walk_next+0x365/0x3c0
-  Call Trace:
-   rhashtable_walk_next+0x365/0x3c0 (lib/rhashtable.c:1016)
-   __netlink_diag_dump+0x160/0x760 (net/netlink/diag.c:122)
-   netlink_dump+0x5bc/0x1270
-   netlink_recvmsg+0x7a3/0x980
+### Exceptional bug fix
 
-Fixes: 5d240a8936f6 ("rhashtable: improve rhashtable_walk stability
-when stop/start used.")
+```text
+fix(cache): stop retrying permanent failures
+
+Client errors entered the retry loop because every upstream failure was
+classified as transient. Treat 4xx responses as terminal while
+retaining retries for timeouts and 5xx responses.
+
+This changes retry behavior for callers that previously relied on
+repeated 4xx attempts.
+
+Fixes: 1a2b3c4d5e6f ("cache: retry failed upstream requests")
 ```
