@@ -273,7 +273,7 @@ git commit -m "feat: generate README catalog from SKILL.md frontmatter"
 - Consumes: the three manifests carrying `version`: `.claude-plugin/plugin.json` (canonical), `.codex-plugin/plugin.json`, `.grok-plugin/plugin.json`.
 - Produces: `python3 scripts/bump.py patch|minor|major|<x.y.z>` (rewrites all three) and `python3 scripts/bump.py --check` (exit 1 on drift, used by Task 4 CI).
 
-- [ ] **Step 1: Write `scripts/bump.py`**
+- [x] **Step 1: Write `scripts/bump.py`**
 
 ```python
 #!/usr/bin/env python3
@@ -353,12 +353,12 @@ if __name__ == "__main__":
 
 Notes: the script prints the tag command instead of tagging — tagging before the commit exists would pin the wrong tree. Version is replaced with a targeted `re.subn` on the `"version"` field instead of a `json.dumps` round-trip, so the manifests' existing formatting (inline `author`/`keywords` objects) is preserved byte-for-byte; `json` is still imported for `read_version`/`check`, which only parse.
 
-- [ ] **Step 2: Verify check mode passes on the clean tree**
+- [x] **Step 2: Verify check mode passes on the clean tree**
 
 Run: `python3 scripts/bump.py --check`
 Expected: `versions consistent: 0.1.0`
 
-- [ ] **Step 3: Verify bump + drift detection round-trip**
+- [x] **Step 3: Verify bump + drift detection round-trip**
 
 ```bash
 python3 scripts/bump.py patch
@@ -384,7 +384,7 @@ git checkout -- .codex-plugin
 
 Expected: `error: version drift: {...}` and `exit=1`.
 
-- [ ] **Step 4: Verify JSON formatting is preserved**
+- [x] **Step 4: Verify JSON formatting is preserved**
 
 ```bash
 python3 scripts/bump.py 0.1.0
@@ -393,7 +393,7 @@ git diff --exit-code
 
 Expected: no diff — the targeted regex rewrites only the `"version"` value, so rewriting the same version is a byte-for-byte no-op and the manifests' inline `author`/`keywords` style survives untouched.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/bump.py
