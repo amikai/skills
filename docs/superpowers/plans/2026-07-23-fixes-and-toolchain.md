@@ -99,13 +99,13 @@ git push
 **Interfaces:**
 - Produces: `python3 scripts/gen_catalog.py` (rewrite mode) and `python3 scripts/gen_catalog.py --check` (exit 1 when stale, used by Task 4 CI). Also validates every `skills/*/SKILL.md`: frontmatter exists, `name` matches directory name, `description` non-empty.
 
-- [ ] **Step 1: Create the `toolchain` branch off the fixed scaffold branch**
+- [x] **Step 1: Create the `toolchain` branch off the fixed scaffold branch**
 
 ```bash
 git checkout -b toolchain scaffold-plugin-manifests
 ```
 
-- [ ] **Step 2: Add markers around the Catalog table in README.md**
+- [x] **Step 2: Add markers around the Catalog table in README.md**
 
 Replace:
 
@@ -129,7 +129,7 @@ with:
 To add a skill: create `skills/<name>/SKILL.md`, then run `python3 scripts/gen_catalog.py`.
 ```
 
-- [ ] **Step 3: Write `scripts/gen_catalog.py`**
+- [x] **Step 3: Write `scripts/gen_catalog.py`**
 
 ```python
 #!/usr/bin/env python3
@@ -212,12 +212,12 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Verify against the empty catalog**
+- [x] **Step 4: Verify against the empty catalog**
 
 Run: `python3 scripts/gen_catalog.py --check`
 Expected: `catalog up to date` (empty table regenerates to itself, exit 0)
 
-- [ ] **Step 5: Verify with a throwaway fixture skill**
+- [x] **Step 5: Verify with a throwaway fixture skill**
 
 ```bash
 mkdir -p skills/tmp-demo
@@ -245,7 +245,7 @@ python3 scripts/gen_catalog.py
 
 Expected: exits non-zero with `frontmatter name 'wrong-name' != directory name 'tmp-demo'`.
 
-- [ ] **Step 6: Remove the fixture and restore the empty table**
+- [x] **Step 6: Remove the fixture and restore the empty table**
 
 ```bash
 rm -rf skills/tmp-demo
@@ -255,7 +255,7 @@ git diff --stat
 
 Expected: only README.md (markers + dev note) and `scripts/gen_catalog.py` changed vs. branch point; catalog table back to header-only.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add scripts/gen_catalog.py README.md
