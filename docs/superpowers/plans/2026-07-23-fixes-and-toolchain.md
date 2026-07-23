@@ -489,7 +489,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 3: Verify CI runs green on the PR**
+- [x] **Step 3: Verify CI runs green on the PR**
 
 Run: `gh pr checks --watch`
 Expected: `ci / validate` passes.
