@@ -99,13 +99,13 @@ git push
 **Interfaces:**
 - Produces: `python3 scripts/gen_catalog.py` (rewrite mode) and `python3 scripts/gen_catalog.py --check` (exit 1 when stale, used by Task 4 CI). Also validates every `skills/*/SKILL.md`: frontmatter exists, `name` matches directory name, `description` non-empty.
 
-- [ ] **Step 1: Create the `toolchain` branch off the fixed scaffold branch**
+- [x] **Step 1: Create the `toolchain` branch off the fixed scaffold branch**
 
 ```bash
 git checkout -b toolchain scaffold-plugin-manifests
 ```
 
-- [ ] **Step 2: Add markers around the Catalog table in README.md**
+- [x] **Step 2: Add markers around the Catalog table in README.md**
 
 Replace:
 
@@ -129,7 +129,7 @@ with:
 To add a skill: create `skills/<name>/SKILL.md`, then run `python3 scripts/gen_catalog.py`.
 ```
 
-- [ ] **Step 3: Write `scripts/gen_catalog.py`**
+- [x] **Step 3: Write `scripts/gen_catalog.py`**
 
 ```python
 #!/usr/bin/env python3
@@ -212,12 +212,12 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Verify against the empty catalog**
+- [x] **Step 4: Verify against the empty catalog**
 
 Run: `python3 scripts/gen_catalog.py --check`
 Expected: `catalog up to date` (empty table regenerates to itself, exit 0)
 
-- [ ] **Step 5: Verify with a throwaway fixture skill**
+- [x] **Step 5: Verify with a throwaway fixture skill**
 
 ```bash
 mkdir -p skills/tmp-demo
@@ -245,7 +245,7 @@ python3 scripts/gen_catalog.py
 
 Expected: exits non-zero with `frontmatter name 'wrong-name' != directory name 'tmp-demo'`.
 
-- [ ] **Step 6: Remove the fixture and restore the empty table**
+- [x] **Step 6: Remove the fixture and restore the empty table**
 
 ```bash
 rm -rf skills/tmp-demo
@@ -255,7 +255,7 @@ git diff --stat
 
 Expected: only README.md (markers + dev note) and `scripts/gen_catalog.py` changed vs. branch point; catalog table back to header-only.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add scripts/gen_catalog.py README.md
@@ -273,7 +273,7 @@ git commit -m "feat: generate README catalog from SKILL.md frontmatter"
 - Consumes: the three manifests carrying `version`: `.claude-plugin/plugin.json` (canonical), `.codex-plugin/plugin.json`, `.grok-plugin/plugin.json`.
 - Produces: `python3 scripts/bump.py patch|minor|major|<x.y.z>` (rewrites all three) and `python3 scripts/bump.py --check` (exit 1 on drift, used by Task 4 CI).
 
-- [ ] **Step 1: Write `scripts/bump.py`**
+- [x] **Step 1: Write `scripts/bump.py`**
 
 ```python
 #!/usr/bin/env python3
@@ -353,12 +353,12 @@ if __name__ == "__main__":
 
 Notes: the script prints the tag command instead of tagging — tagging before the commit exists would pin the wrong tree. Version is replaced with a targeted `re.subn` on the `"version"` field instead of a `json.dumps` round-trip, so the manifests' existing formatting (inline `author`/`keywords` objects) is preserved byte-for-byte; `json` is still imported for `read_version`/`check`, which only parse.
 
-- [ ] **Step 2: Verify check mode passes on the clean tree**
+- [x] **Step 2: Verify check mode passes on the clean tree**
 
 Run: `python3 scripts/bump.py --check`
 Expected: `versions consistent: 0.1.0`
 
-- [ ] **Step 3: Verify bump + drift detection round-trip**
+- [x] **Step 3: Verify bump + drift detection round-trip**
 
 ```bash
 python3 scripts/bump.py patch
@@ -384,7 +384,7 @@ git checkout -- .codex-plugin
 
 Expected: `error: version drift: {...}` and `exit=1`.
 
-- [ ] **Step 4: Verify JSON formatting is preserved**
+- [x] **Step 4: Verify JSON formatting is preserved**
 
 ```bash
 python3 scripts/bump.py 0.1.0
@@ -393,7 +393,7 @@ git diff --exit-code
 
 Expected: no diff — the targeted regex rewrites only the `"version"` value, so rewriting the same version is a byte-for-byte no-op and the manifests' inline `author`/`keywords` style survives untouched.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/bump.py
@@ -410,7 +410,7 @@ git commit -m "feat: version bump script with drift check"
 **Interfaces:**
 - Consumes: `scripts/gen_catalog.py --check` (Task 2), `scripts/bump.py --check` (Task 3).
 
-- [ ] **Step 1: Write `.github/workflows/ci.yml`**
+- [x] **Step 1: Write `.github/workflows/ci.yml`**
 
 ```yaml
 name: ci
@@ -437,7 +437,7 @@ jobs:
         run: python3 scripts/bump.py --check
 ```
 
-- [ ] **Step 2: Run every CI step locally**
+- [x] **Step 2: Run every CI step locally**
 
 ```bash
 for f in plugin.json .claude-plugin/*.json .codex-plugin/*.json .grok-plugin/*.json; do
@@ -449,7 +449,7 @@ python3 scripts/bump.py --check
 
 Expected: `OK` for 6 files (root `plugin.json`; claude plugin + marketplace; codex plugin + marketplace; grok plugin — its marketplace.json was deleted in Task 1), then `catalog up to date`, then `versions consistent: 0.1.0`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
@@ -462,13 +462,13 @@ git commit -m "ci: validate manifests, catalog freshness, version consistency"
 
 **Files:** none (git/gh only)
 
-- [ ] **Step 1: Push the branch**
+- [x] **Step 1: Push the branch**
 
 ```bash
 git push -u origin toolchain
 ```
 
-- [ ] **Step 2: Open PR #2 stacked on PR #1's branch**
+- [x] **Step 2: Open PR #2 stacked on PR #1's branch**
 
 ```bash
 gh pr create --base scaffold-plugin-manifests --title "Catalog generation, version bump tooling, and CI" --body "$(cat <<'EOF'
@@ -489,7 +489,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 3: Verify CI runs green on the PR**
+- [x] **Step 3: Verify CI runs green on the PR**
 
 Run: `gh pr checks --watch`
 Expected: `ci / validate` passes.

@@ -61,8 +61,12 @@ npx skills add amikai/skills
 
 ## Catalog
 
+<!-- catalog:start -->
 | Skill | What it does | Path |
 |-------|--------------|------|
+<!-- catalog:end -->
+
+To add a skill: create `skills/<name>/SKILL.md`, then run `python3 scripts/gen_catalog.py`.
 
 ## License
 
