@@ -67,7 +67,6 @@ npx skills add amikai/skills
 | [commit-msg](skills/commit-msg/) | Craft concise, outcome-focused commit messages with detail matched to complexity and risk. |
 | [modern-utility](skills/modern-utility/) | Prefer fast, modern CLI tools (Rust/Go/C) and Bash pipelines over Python scripts for daily tasks and lightweight data analysis. |
 | [pr-msg](skills/pr-msg/) | Craft reviewer-friendly PR/MR titles and descriptions focused on intent, architecture, and key changes, with diagrams when useful. |
-| [pull-request](skills/pull-request/) | Write clear, structured Pull Request titles and descriptions. Use whenever creating or updating a pull request. |
 <!-- catalog:end -->
 
 To add a skill: create `skills/<name>/SKILL.md`, run
