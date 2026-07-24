@@ -65,7 +65,7 @@ npx skills add amikai/skills
 | Skill | What it does |
 |-------|--------------|
 | [commit-msg](skills/commit-msg/) | Craft concise, outcome-focused commit messages with detail matched to complexity and risk. |
-| [pull-request](skills/pull-request/) | Craft reviewer-friendly PR/MR titles and descriptions focused on intent, architecture, and key changes, with diagrams when useful. |
+| [pr-msg](skills/pr-msg/) | Craft reviewer-friendly PR/MR titles and descriptions focused on intent, architecture, and key changes, with diagrams when useful. |
 <!-- catalog:end -->
 
 To add a skill: create `skills/<name>/SKILL.md`, run
