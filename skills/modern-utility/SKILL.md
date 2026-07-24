@@ -1,23 +1,26 @@
 ---
 name: modern-utility
 description: >
-  Compose fast CLI tools into Bash pipelines before writing Python scripts. Use for search, codebase sizing, batch replacement, and extracting, aggregating, or charting JSON/YAML, CSV/TSV, and logs.
+  Compose fast CLI tools into Bash pipelines for search, batch edit, data analysis, and log processing before escalating to Python.
 ---
 
 # Modern Utility
 
-Use fast CLI tools and shell pipelines as the primary choice for search, extraction, transformation, data analysis, and visualization. Upgrade to Python when task complexity warrants it.
+Compose fast CLI tools and shell pipelines for code search, extraction, data analysis, and visualization before escalating to Python scripts.
 
-## Hierarchy
+## Workflow
 
-1. **Agent built-in tools**: For single-step tasks (search, read, edit). Use the edit tool for small edits to keep changes reviewable (avoid `sed`/`sd`).
-2. **CLI shell pipelines**: For chained operations (`|`) like regex capture or filter-aggregate without flooding context. Use `rg` (e.g. `rg -o`, `rg -N --no-filename`) in pipelines instead of `grep` or built-in search.
-3. **Inline Python (`python3 -c "..."`)**: When string logic or nested structures become awkward in pure shell.
-4. **Full Python script**: For multi-pass algorithms, stateful parsing, complex joins, heavy libraries (`pandas`, `numpy`), or non-terminal plots (`matplotlib`, `plotly`). Escalate early if a pipeline becomes unreadable.
+1. **Select tier**:
+   - Tier 1: Agent built-in tools for single-file operations.
+   - Tier 2: Shell pipelines (`|`) for regex extraction, filtering, or aggregations without context flooding.
+   - Tier 3: Inline Python (`python3 -c "..."`) when string manipulation or JSON parsing becomes awkward in pure shell.
+   - Tier 4: Escalate to full Python script for multi-pass logic, heavy libraries (`pandas`, `matplotlib`), or complex stateful parsing.
+2. **Verify availability**: Test optional tools using explicit `if command -v tool >/dev/null 2>&1; then` checks before invocation.
+3. **Compose & cap**: Build pipelines and cap terminal output (`| head -n 50`) to avoid flooding context.
 
-## Preferred Tools and Fallbacks
+*Completion Criterion*: Pipeline returns exact query results without context flooding (≤50 lines), uses standard fallbacks when modern CLI tools are absent, and leaves no temporary script sediment.
 
-Check availability with `command -v` before using modern tools:
+## Tool Selection & Fallbacks
 
 | Task | Preferred | Fallback |
 | :--- | :--- | :--- |
@@ -31,13 +34,12 @@ Check availability with `command -v` before using modern tools:
 | SQL on CSV/JSON | `duckdb` | `sqlite3` / `python3` |
 | Terminal charts | `uplot` (YouPlot) | Plain-text summary (`sort \| uniq -c`) |
 
-### Tool Notes
+## Tool Rules
 
-- **`tokei`**: Separates code from comments and blanks (only `code` count excludes them) and respects `.gitignore`/`.ignore` (totals sit below raw `wc -l`; use `--no-ignore` / `--hidden` to widen). Key flags: `-t <Lang>`, `-f` (per-file breakdown), `-s code` (sort by code). In JSON mode (`-o json`), filter out the `"Total"` entry to avoid doubling aggregate sums.
-- **`yq`**: Must be the Go build (github.com/mikefarah/yq). Verify with `yq --version` (contains `mikefarah`).
-- **Python fallbacks**: JSON/CSV use stdlib. YAML requires PyYAML (`import yaml`). If both CLI tool and `yaml` module are missing, report unavailability rather than attempting further workarounds.
-- **`uplot`**: Expects TSV by default (`-d` for delimiter, `-H` for headers) and outputs charts to **stderr** (preserving clean stdout data). Escalate to `matplotlib` for multi-series, annotations, or image exports.
-- **Tool Check Syntax**: Use explicit `if` statements instead of `&& ... ||` chains to prevent swallowing query errors:
+- **`tokei`**: Use `code` line count to exclude comments/blanks. In JSON mode (`-o json`), filter out `"Total"` to avoid doubled sums.
+- **`yq`**: Requires Go build (`mikefarah/yq`). Verify version (`yq --version`).
+- **`uplot`**: Expects TSV input by default; outputs charts to `stderr` to preserve stdout piping.
+- **Safe tool check pattern**:
 
   ```bash
   if command -v yq >/dev/null 2>&1; then
@@ -53,39 +55,29 @@ Check availability with `command -v` before using modern tools:
   ```bash
   rg -o 'ERROR \[\w+\]' server.log | sort | uniq -c | sort -rn | head -n 10
   ```
-- **Batch replace** (use agent edit tool for small edits):
+- **Batch replace across files**:
   ```bash
   fd -t f -e ts -e js -X sd 'v1/api' 'v2/api'
   ```
-- **Codebase size**:
+- **Codebase size summary**:
   ```bash
-  tokei
   tokei -t Python -f -s code
   ```
-- **Language mix chart**:
+- **Language distribution chart**:
   ```bash
   tokei -o json | jq -r 'to_entries | map(select(.key != "Total")) | sort_by(-.value.code)[] | "\(.key)\t\(.value.code)"' | uplot bar -t 'Code lines'
   ```
-- **YAML read / in-place edit**:
+- **YAML in-place edit**:
   ```bash
-  yq '.metadata.name' deployment.yaml
   yq -i '.spec.replicas = 3' deployment.yaml
   ```
-- **CSV summary stats** (`--cache-threshold 0` disables sidecar files):
+- **CSV summary stats**:
   ```bash
   qsv stats --cache-threshold 0 --everything data.csv | head -n 30
   ```
-- **SQL directly on a file**:
+- **SQL on file**:
   ```bash
   duckdb -c "SELECT status_code, COUNT(*) AS cnt FROM 'access.log.csv' GROUP BY status_code ORDER BY cnt DESC"
-  ```
-- **Pipeline chart** (`uplot count` aggregates directly):
-  ```bash
-  rg -oN --no-filename 'ERROR \[\w+\]' server.log | uplot count -t 'Errors'
-  ```
-- **Histogram**:
-  ```bash
-  qsv select response_ms data.csv | tail -n +2 | uplot hist --nbins 20
   ```
 - **Inline Python glue**:
   ```bash
@@ -97,7 +89,7 @@ Check availability with `command -v` before using modern tools:
   '
   ```
 
-## Rules
+## Execution Guardrails
 
-- **Cap output**: Use `| head -n 50` or `qsv slice -l 50` to avoid context flooding. (`rg -m 50` limits per-file matches, not globally; pipe to `head` for global capping).
-- **Avoid leftover scripts**: Prefer pipelines or `python3 -c` over leaving temporary `.py` files. Create formal script files only when logic complexity truly requires it.
+- **Output capping**: Always cap pipeline output (`| head -n 50` or `qsv slice -l 50`).
+- **No temporary script sediment**: Use inline Python (`python3 -c`) or pipelines. Do not write temporary `.py` files to the codebase unless escalation to a formal script is required.

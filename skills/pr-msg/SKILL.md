@@ -1,75 +1,64 @@
 ---
 name: pr-msg
 description: >
-  Write clear, structured Pull Request titles and descriptions. Use whenever creating or updating a pull request.
+  Craft reviewer-friendly PR/MR titles and descriptions focused on intent, architecture, and key changes.
 ---
 
 # Pull Requests
 
-Write clear, structured Pull Request (PR) and Merge Request (MR) titles and descriptions focusing on high-level architecture, intent, and goals.
+Craft reviewer-friendly Pull Request (PR) and Merge Request (MR) titles and descriptions highlighting high-level intent, architecture, and key changes.
 
-## Core Philosophy
+## Workflow
 
-- **Focus on Intent & Architecture**: Explain the goals and impact of the change. Do not repeat low-level code edits or line-by-line diffs that are already visible in the code view.
-- **The 5-Minute Rule**: Reviewers should be able to grasp the purpose, context, and approach of your PR within 5 minutes. If not, simplify the description.
-- **The Self-Review**: Treat writing the PR description as the first review of your own code. It forces you to validate design decisions and catch obvious errors before notifying others.
-- **Keep PRs Small and Focused**: Build PRs around a single, cohesive goal. Do not mix unrelated changes (e.g., refactoring + new feature). Use Draft PRs for work-in-progress.
+1. **Inspect diff & context**: Run `git log <base>..HEAD` and `git diff <base>...HEAD`. Inspect repository templates in `.github/` or `.gitlab/`, linked issues, and specs.
+2. **Review existing PR text** (if rewriting): Read current title/body (`gh pr view --json title,body`). Compare with diff and report missing or inaccurate claims grouped by severity before proposing revisions.
+3. **Select format**:
+   - Small/low-risk PR: Use a single concise paragraph covering outcome, motivation, and verification.
+   - Large/complex PR: Use the full structured template.
+4. **Draft title & body**: Write `<type>(<scope>): <outcome>` title (≤72 chars). Populate intent, architecture, key changes, and verification.
+5. **Add visuals**: Include Mermaid diagrams for structural/state/flow changes, or before/after media for UI edits.
 
-## Context & Reviewer Guidance
+*Completion Criterion*: PR title and description strictly reflect work in the diff, high-level intent is clear without duplicating code diffs, verification commands are documented, and template sections are accurately populated.
 
-Before drafting or rewriting, run `git log <base>..HEAD` and
-`git diff <base>...HEAD` to inspect changes. Check repository PR templates in
-`.github/` or `.gitlab/`, plus linked issues, specifications, and design docs.
-Describe only work actually present in the diff.
+## Sizing & Focus Rules
 
-When reviewing existing PR text:
-- Read the current PR title and body before proposing changes (use the hosting
-  platform's CLI or UI when available, such as `gh pr view --json title,body`).
-- Compare the title and body with the diff, repository template, and linked
-  requirements. Identify missing, inaccurate, or unsupported claims.
-- Report findings first, grouped by severity, then provide suggested wording or
-  a revised description.
+- **Intent-first**: Explain goals, impact, and design decisions. Omit line-by-line diff narration already visible in the code viewer.
+- **Single cohesive goal**: Keep PRs focused on a single logical change. Split unrelated changes into separate PRs; use draft PRs for work-in-progress.
+- **Reviewer guidance**: For large PRs, suggest a file review sequence (e.g., schema -> core handler -> tests) and specify requested feedback (design, perf, security).
 
-For complex or large PRs:
-- **Suggest a Reading Order**: Provide a logical sequence for reviewing files (e.g., "Start with the schema change, then core handler, then tests").
-- **Specify Feedback Type**: Note what feedback you need (e.g., high-level design review, performance verification, security check, or simple sanity check).
+## Title Syntax
 
-## Title
+Use Conventional Commits: `<type>(<scope>): <outcome>`.
 
-Unless the repository specifies another format, use Conventional Commits: `<type>(<scope>): <outcome>`.
-- Types: `feat` `fix` `refactor` `perf` `docs` `test` `chore` `build` `ci` `style` `revert`.
-- Use imperative mood, English, ≤72 characters, no trailing period.
-- Focus on the outcome, not raw code edits (e.g., `feat(auth): add multi-factor authentication` instead of `fix: update logic in user_service.go`).
+- **Types**: `feat` `fix` `refactor` `perf` `docs` `test` `chore` `build` `ci` `style` `revert`.
+- **Format**: Imperative mood, English, ≤72 characters, no trailing period.
+- **Focus**: State outcome rather than low-level code edits (`feat(auth): add multi-factor authentication` instead of `fix: update logic in user_service.go`).
 
 ## Description Template
 
-Use these sections in the PR body (omit empty or irrelevant sections):
-
-For a small, low-risk PR, a single concise paragraph is enough. Cover the
-change, its motivation or user impact, and verification without forcing the
-full section template or a diagram.
+Include only relevant sections (omit empty sections):
 
 ```markdown
 ## Summary
 A 1–3 sentence high-level overview of what this PR accomplishes.
 
 ## Motivation & Context
-Why is this change necessary? Link relevant issues (`Closes #123`, `Refs #456`) and explain the business impact or constraints.
+Why is this change necessary? Link relevant issues (`Closes #123`, `Refs #456`) and business impact.
 
 ## Architecture & Diagrams
-For structural changes, include a Mermaid diagram (sequence, flowchart, state, ER) to visualize flows, transitions, or component interactions.
+For structural changes, include a Mermaid diagram visualizing component interactions or data flows.
 
 ## Key Changes
-Logical high-level changes (e.g., subsystem updates, API contract updates). Avoid line-by-line file details.
+Logical high-level changes (subsystem updates, API contract changes). Omit line-by-line file details.
 
 ## Reviewer Guidance
-(Optional) Suggested file review sequence or specific areas requiring closer inspection.
+(Optional) Suggested file review sequence or specific areas requiring inspection.
 
 ## Verification & Testing
-Explain how the changes were verified (e.g., unit test commands run, manual verification steps executed).
+How changes were verified (unit test commands, manual verification steps executed).
 
 ## Risks & Rollout
-Known risks, monitoring signals, rollback steps, or security impact. Omit when irrelevant.
+Known risks, monitoring signals, rollback steps, or security impact.
 
 ## Breaking Changes & Migration
 Required configuration updates, database migrations, or breaking API changes.
@@ -77,20 +66,20 @@ Required configuration updates, database migrations, or breaking API changes.
 
 ## Mermaid Diagrams
 
-Use Mermaid diagrams for complex refactors, multi-service integrations, or state machine changes to reduce reviewer cognitive load:
-- **Sequence Diagrams (`sequenceDiagram`)**: For multi-service request/response flows or async messaging.
-- **Flowcharts (`flowchart TD`)**: For logical routing, decision branching, or data pipelines.
-- **State Diagrams (`stateDiagram-v2`)**: For lifecycle states or finite state machines.
-- **Class/Entity Diagrams (`classDiagram` / `erDiagram`)**: For database schema or data model shifts.
+Use Mermaid diagrams for multi-service flows, complex refactors, or state machines:
 
-*Guideline*: Keep diagrams focused strictly on the changed path. Test that syntax renders correctly in markdown preview.
+- **Sequence (`sequenceDiagram`)**: Request/response flows or async messaging.
+- **Flowchart (`flowchart TD`)**: Decision routing or data pipelines.
+- **State (`stateDiagram-v2`)**: Lifecycle or finite state machine transitions.
+- **Entity (`erDiagram` / `classDiagram`)**: Schema or data model changes.
 
-## Sizing, Honesty & Hygiene
+*Rule*: Focus diagrams strictly on changed paths; verify rendering in markdown preview.
 
-- **Scope Integrity**: Describe only work actually present in the PR diff. Do not document uncommitted local changes or planned follow-ups.
-- **Evidence Only**: Never invent test results, impact, component ownership, or implementation details. State uncertainty or omit unsupported claims.
-- **No Vanity or Fluff**: Avoid filler text and AI-attribution footers.
-- **Visuals**: For UI changes, include before/after screenshots or recordings when available.
+## Honesty & Hygiene
+
+- **Evidence-based**: Document only work and verification actually completed; state uncertainty or omit unsupported claims.
+- **No fluff or AI trailers**: Omit filler text and AI-attribution footers.
+- **UI Media**: Embed before/after screenshots or recordings for visual changes.
 
 ## Examples
 
