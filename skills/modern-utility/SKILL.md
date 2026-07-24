@@ -31,9 +31,9 @@ This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash 
   - Trigger: When heavy third-party libraries or multi-stage algorithms are strictly required.
   - Use for: `pandas`, `numpy`, machine learning models, complex multi-step data pipelines, or heavy mathematical operations.
 
-> **Pro Tip**: Check tool availability with a runnable fallback before assuming installation:
+> **Pro Tip**: Check tool availability with a runnable standard-library fallback before assuming installation:
 > ```bash
-> command -v yq >/dev/null 2>&1 && yq '.version' config.yaml || python3 -c "import yaml; print(yaml.safe_load(open('config.yaml')).get('version'))"
+> command -v yq >/dev/null 2>&1 && yq '.version' config.yaml || python3 -c "import re; print(re.search(r'version:\s*([^\s]+)', open('config.yaml').read()).group(1))"
 > ```
 
 ## Agent Speed Matrix (Task → Primary CLI vs Secondary Python)
@@ -41,9 +41,9 @@ This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash 
 | Agent Task | Primary CLI Command (Piped in `run_command`) | Secondary Python Glue (`python3 -c`) |
 | :--- | :--- | :--- |
 | **Pipeline Search & Extract** | `rg -o 'error:\s*\w+' log/ \| sort \| uniq -c` | `python3 -c "import sys, re; ..."` |
-| **Find Files & Batch Replace** | `fd -e ts -X sd 'old' 'new'` | `python3 -c "import pathlib; ..."` |
+| **Find Files & Batch Replace** | `fd -t f -e ts -X sd 'old' 'new'` | `python3 -c "import pathlib; ..."` |
 | **JSON Key Extraction** | `jaq -r '.key' file.json \| sort` | `python3 -c "import json, sys; ..."` |
-| **YAML / TOML Key Extract & Edit** | `yq '.services.web.image' docker-compose.yml` | `python3 -c "import yaml, sys; ..."` |
+| **YAML / TOML Key Extract & Edit** | `yq '.services.web.image' docker-compose.yml` | `python3 -c "import re, sys; ..."` |
 | **CSV/TSV Filtering** | `qsv select col1,col2 data.csv \| head -n 30` | `python3 -c "import csv, sys; ..."` |
 | **SQL on CSV/TSV/JSON** | `duckdb -c "SELECT ... FROM 'data.csv'"` | `python3 -c "import sqlite3..."` or `pandas` |
 
@@ -54,9 +54,9 @@ This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash 
   ```bash
   rg -o 'ERROR \[\w+\]' server.log | sort | uniq -c | sort -rn
   ```
-* **Batch String Replacement (Filename-Safe)**:
+* **Batch String Replacement (Filename-Safe & File-Only)**:
   ```bash
-  fd -e ts -e js -X sd 'v1/api' 'v2/api'
+  fd -t f -e ts -e js -X sd 'v1/api' 'v2/api'
   ```
 * **YAML Field Extraction & In-Place Editing**:
   ```bash
@@ -82,11 +82,12 @@ This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash 
   ```
 
 ### 3. Frequency & Truncation
-* **Top 10 Most Frequent Values**:
+* **Top 10 Most Frequent Values (Cache-Free & Sorted Fallback)**:
   ```bash
-  qsv frequency -s category data.csv -l 10
+  # Standard-input stream prevents qsv sidecar cache files
+  qsv frequency -s category -l 10 < data.csv
   # CSV-aware fallback using Miller (mlr):
-  mlr --csv count-distinct -f category data.csv
+  mlr --csv count-distinct -f category then sort -nr count then head -n 10 data.csv
   ```
 
 ## Practical Guidelines for Agents
