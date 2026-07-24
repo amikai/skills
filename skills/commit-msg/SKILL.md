@@ -1,10 +1,7 @@
 ---
 name: commit-msg
 description: >
-  Write, rewrite, or review clear, concise Git commit messages. Use when
-  drafting, validating, or supplying a message for git commit. Defaults
-  to an outcome-focused Conventional Commit subject and scales body
-  detail to complexity and risk.
+  Write clear, concise Git commit messages. Use whenever writing git commit messages.
 ---
 
 # Commit Messages

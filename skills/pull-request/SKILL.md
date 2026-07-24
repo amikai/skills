@@ -1,10 +1,7 @@
 ---
 name: pull-request
 description: >
-  Draft, rewrite, or review clear, structured Pull Request (PR) and Merge
-  Request (MR) titles and descriptions. Use when opening a PR, updating a
-  PR summary, or reviewing existing PR text. Focuses on high-level architecture
-  and intent, incorporating Mermaid diagrams.
+  Write clear, structured Pull Request titles and descriptions. Use whenever creating or updating a pull request.
 ---
 
 # Pull Requests
