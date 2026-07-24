@@ -1,15 +1,16 @@
 ---
 name: modern-utility
 description: >
-  Prefer fast, modern CLI tools (Rust/Go/C) and Bash pipelines over Python scripts for daily tasks and lightweight data analysis. Use whenever searching codebases, performing batch file replacements, parsing JSON/YAML, or analyzing CSV/TSV/logs.
+  Compose small, fast CLI tools into Bash pipelines before reaching for a Python script. Use whenever searching codebases, batch-replacing across files, or extracting, aggregating, and charting JSON/YAML, CSV/TSV, and logs.
 ---
 
 # Modern Utility
 
 Use fast CLI tools and shell pipelines as the first choice for search,
-extraction, transformation, and lightweight data analysis. Use Python
-only as glue when a pipeline becomes unreadable, and a full Python
-script only when the task genuinely needs one.
+extraction, transformation, lightweight data analysis, and
+visualization. When the work outgrows them, Python is the right
+answer, not a defeat: the ordering exists so that simple work stays
+simple, not to keep scripts out.
 
 ## Hierarchy
 
@@ -23,8 +24,13 @@ script only when the task genuinely needs one.
    not `grep` and not the agent's built-in search tool.
 3. **Inline Python glue (`python3 -c "..."`)**: when string logic or
    nested-structure handling gets awkward in pure shell.
-4. **Full Python script**: only for multi-pass algorithms or heavy
-   libraries (`pandas`, `numpy`, ML).
+4. **Full Python script**: for multi-pass algorithms, stateful
+   parsing, non-trivial joins, heavy libraries (`pandas`, `numpy`,
+   ML), or charts past a quick terminal glance (`matplotlib`, or
+   `plotly` when it should be interactive). Escalate here as soon as
+   the task genuinely needs it — a pipeline contorted to avoid a
+   script is harder to read, debug, and change than the script would
+   have been.
 
 ## Preferred tools and fallbacks
 
@@ -40,6 +46,7 @@ relying on one, then fall back:
 | YAML | `yq` | `python3` + `yaml` |
 | CSV / TSV | `qsv` or `mlr` | `awk` or `python3 -c "import csv; ..."` |
 | SQL on CSV/JSON | `duckdb` | `sqlite3` or `python3` |
+| Terminal charts | `uplot` (YouPlot) | plain-text summary (`sort \| uniq -c`) |
 
 - `yq` means the Go implementation (https://github.com/mikefarah/yq),
   not the Python one — verify with `yq --version` (the Go build prints
@@ -48,6 +55,12 @@ relying on one, then fall back:
   YAML needs the third-party `yaml` (PyYAML) module — if both the CLI
   tool and the module are missing, report that instead of trying
   further workarounds.
+- `uplot` reads TSV by default (`-d` for other delimiters, `-H` for a
+  header row) and draws the chart on **stderr**, leaving stdout free
+  for the data itself. It answers "what does this look like" at a
+  glance; multiple series, annotations, controlled scales, or a saved
+  image file call for a full Python script — reach for `matplotlib`
+  rather than fighting a terminal plot.
 - Check availability with an explicit `if`, not an `&& … ||` chain
   (a chain falls through to the fallback when the tool exists but the
   query fails, hiding the real error):
@@ -84,6 +97,15 @@ relying on one, then fall back:
   ```bash
   duckdb -c "SELECT status_code, COUNT(*) AS cnt FROM 'access.log.csv' GROUP BY status_code ORDER BY cnt DESC"
   ```
+- **Terminal chart straight from a pipeline** (`uplot count` counts
+  occurrences itself — no `sort | uniq -c` needed):
+  ```bash
+  rg -oN --no-filename 'ERROR \[\w+\]' server.log | uplot count -t 'Errors'
+  ```
+- **Histogram of a numeric column**:
+  ```bash
+  qsv select response_ms data.csv | tail -n +2 | uplot hist --nbins 20
+  ```
 - **Python glue on CLI output**:
   ```bash
   jq -c '.items[]' data.json | python3 -c '
@@ -99,5 +121,6 @@ relying on one, then fall back:
 - Cap long outputs (`… | head -n 50`, `qsv slice -l 50`) to avoid
   flooding context. Note `rg -m 50` limits matches per file, not
   globally — pipe through `head` for a global cap.
-- Prefer pipelines or `python3 -c` over writing one-off script files
-  into the workspace.
+- Prefer pipelines or `python3 -c` over leaving one-off script files
+  behind in the workspace — but when a task genuinely calls for a
+  script, write a real one instead of cramming it into `-c`.
