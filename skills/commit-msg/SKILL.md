@@ -18,7 +18,7 @@ Before drafting the message, inspect the staged diff or changes (`git diff --sta
 
 ### Detailed Mode (Select if ANY apply):
 - Fixes a non-obvious bug, race condition, or edge case (Special Implementation).
-- Introduces a new algorithm, subsystem, rate limiter, or state machine (Complex Implementation).
+- Introduces a new algorithm, subsystem, architectural pattern, or state machine (Complex Implementation).
 - Involves architectural trade-offs, performance workarounds, or third-party bug mitigations.
 - Introduces a breaking change or alters existing API contracts.
 
