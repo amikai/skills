@@ -1,15 +1,16 @@
 ---
 name: modern-utility
 description: >
-  Prefer fast, modern CLI tools (Rust/Go/C) and Bash pipelines over Python scripts for daily tasks and lightweight data analysis. Use whenever searching codebases, performing batch file replacements, parsing JSON/YAML, or analyzing CSV/TSV/logs.
+  Compose small, fast CLI tools into Bash pipelines before reaching for a Python script. Use whenever searching codebases, batch-replacing across files, or extracting, aggregating, and charting JSON/YAML, CSV/TSV, and logs.
 ---
 
 # Modern Utility
 
 Use fast CLI tools and shell pipelines as the first choice for search,
-extraction, transformation, and lightweight data analysis. Use Python
-only as glue when a pipeline becomes unreadable, and a full Python
-script only when the task genuinely needs one.
+extraction, transformation, lightweight data analysis, and
+visualization. Use Python only as glue when a pipeline becomes
+unreadable, and a full Python script only when the task genuinely
+needs one.
 
 ## Hierarchy
 
@@ -40,6 +41,7 @@ relying on one, then fall back:
 | YAML | `yq` | `python3` + `yaml` |
 | CSV / TSV | `qsv` or `mlr` | `awk` or `python3 -c "import csv; ..."` |
 | SQL on CSV/JSON | `duckdb` | `sqlite3` or `python3` |
+| Terminal charts | `uplot` (YouPlot) | plain-text summary (`sort \| uniq -c`) |
 
 - `yq` means the Go implementation (https://github.com/mikefarah/yq),
   not the Python one — verify with `yq --version` (the Go build prints
@@ -48,6 +50,9 @@ relying on one, then fall back:
   YAML needs the third-party `yaml` (PyYAML) module — if both the CLI
   tool and the module are missing, report that instead of trying
   further workarounds.
+- `uplot` reads TSV by default (`-d` for other delimiters, `-H` for a
+  header row) and draws the chart on **stderr**, leaving stdout free
+  for the data itself.
 - Check availability with an explicit `if`, not an `&& … ||` chain
   (a chain falls through to the fallback when the tool exists but the
   query fails, hiding the real error):
@@ -83,6 +88,15 @@ relying on one, then fall back:
 - **SQL directly on a file**:
   ```bash
   duckdb -c "SELECT status_code, COUNT(*) AS cnt FROM 'access.log.csv' GROUP BY status_code ORDER BY cnt DESC"
+  ```
+- **Terminal chart straight from a pipeline** (`uplot count` counts
+  occurrences itself — no `sort | uniq -c` needed):
+  ```bash
+  rg -oN --no-filename 'ERROR \[\w+\]' server.log | uplot count -t 'Errors'
+  ```
+- **Histogram of a numeric column**:
+  ```bash
+  qsv select response_ms data.csv | tail -n +2 | uplot hist --nbins 20
   ```
 - **Python glue on CLI output**:
   ```bash
