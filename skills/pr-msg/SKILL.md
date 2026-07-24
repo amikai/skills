@@ -1,5 +1,5 @@
 ---
-name: pull-request
+name: pr-msg
 description: >
   Write clear, structured Pull Request titles and descriptions. Use whenever creating or updating a pull request.
 ---
