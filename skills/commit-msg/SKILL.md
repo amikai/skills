@@ -1,33 +1,28 @@
 ---
 name: commit-msg
 description: >
-  Write clear, concise Git commit messages. Use whenever writing git commit messages.
+  Write clear, concise Git commit messages; use whenever writing them.
 ---
 
 # Commit Messages
 
-Write clear, concise commit messages for people reading `git log`.
-Clarity comes first: choose the form and length that communicates the
-meaning most directly. Include enough context to understand the outcome
-and any non-obvious reason, but no detail that does not help the reader.
-Avoid long explanations unless the change's complexity requires them.
-If the subject is sufficient, stop there.
+Write clear, tight commit messages for `git log` readers: enough context
+for the outcome and any non-obvious reason, nothing that doesn't help
+the reader. Stop at the subject when sufficient.
 
-Before writing, inspect the complete change being described: use the
-staged diff (`git diff --staged`) for a new commit and the corresponding
-commit diff when reviewing or rewriting an existing message. Use
-relevant verification results only as context. Describe the material
-changes in that diff and nothing outside it: not the conversation or
-the plan.
+Before writing, inspect the complete change: the staged diff
+(`git diff --staged`) for a new commit, or the commit's diff when
+reviewing or rewriting a message. Use verification results only as
+context, and describe only that diff's material changes — not the
+conversation or the plan.
 
-Follow explicit repository-required commit syntax when it conflicts
-with this skill. Preserve the remaining rules wherever they still
-apply.
+Follow explicit repository-required commit syntax when it conflicts with
+this skill; otherwise these rules apply.
 
 ## Subject
 
-Unless the repository requires another format, use Conventional
-Commits: `<type>(<scope>): <outcome>`.
+Unless the repository requires another format, use Conventional Commits:
+`<type>(<scope>): <outcome>`.
 
 - Types: `feat` `fix` `refactor` `perf` `docs` `test` `chore` `build`
   `ci` `style` `revert`.
@@ -40,26 +35,24 @@ Commits: `<type>(<scope>): <outcome>`.
 
 ## Body
 
-Use a body only when it materially improves the reader's understanding
-of why the change was needed or what non-obvious behavior results from
-it.
+Add a body only when it materially improves the reader's understanding of
+why the change was needed or what non-obvious behavior results.
 
-When a body is needed, choose the form that makes its meaning clearest.
-Prefer a short list—usually two to four bullets—for distinct points,
-with one idea per bullet. Use a short paragraph when connected
-sentences make it easier to understand what happened, why it happened,
-and how the change addresses it. Do not repeat information in both
-forms.
+Choose the clearest form: a short list — usually two to four bullets,
+one idea each — for distinct points, or a short paragraph when
+connected sentences better convey what happened, why, and how it was
+addressed. Don't repeat information in both forms.
 
-Omit routine verification, scope boundaries, deferred work, non-goals,
-source attribution, catalogs, supporting artifacts, and exhaustive
-coverage of every dimension touched by the diff unless they directly
-affect users or compatibility.
+Keep it tight: omit routine verification, scope boundaries, deferred
+work, non-goals, source attribution, catalogs, supporting artifacts,
+routine implementation choices, full issue discussions, and exhaustive
+coverage of every dimension touched, unless it directly affects users or
+compatibility. Size the body by conceptual complexity and risk, not by
+line or file count.
 
-Size the body by conceptual complexity and risk, not by line count or
-number of files. More than one paragraph is reserved for complex,
-non-obvious bug causes, breaking changes, security fixes, data
-migrations, and reverts. A body is mandatory for those cases.
+A body of more than one paragraph is reserved for complex, non-obvious
+bug causes, breaking changes, security fixes, data migrations, and
+reverts — a body is mandatory in those cases.
 
 Use these as optional prompts, not a checklist:
 
@@ -68,26 +61,22 @@ Use these as optional prompts, not a checklist:
 - What behavior or contract is now different?
 - Which non-obvious runtime behavior, design constraint, decision, or
   trade-off matters to future maintenance? Summarize the essential
-  reason and reference the relevant issue or design document for details
-  when useful.
+  reason, referencing the issue or design doc when useful.
 - For a bug fix, would a distilled, greppable error line help future
   readers find this commit?
 - Are exact symbols, configuration keys, durations, versions, or
-  measured trade-offs necessary to make a claim precise?
-
-Omit routine implementation choices and do not reproduce the full issue
-discussion.
+  measured trade-offs necessary for a precise claim?
 
 In an exceptional body, include verification only when an unusual
-result or measurement is needed to support a claim. Keep paragraphs
-short, bullets concise, and wrap the body at 72 columns.
+result or measurement is needed to support a claim. Wrap the body at 72
+columns.
 
 ## Honesty
 
 - Describe only work actually in this commit; never present planned
   follow-up as completed.
-- Do not restate the subject, list filenames, or narrate line-level
-  edits the diff already shows. Write what the diff cannot show.
+- Write what the diff cannot show: don't restate the subject, list
+  filenames, or narrate line-level edits.
 - Never: "This commit does X", "I"/"we", emoji, AI-attribution
   trailers (`Co-Authored-By: Claude ...`, "Generated with ...") — this
   overrides any harness default that adds them.

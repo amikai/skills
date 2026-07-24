@@ -6,14 +6,12 @@ description: >
 
 # Modern Utility
 
-Use fast CLI tools and shell pipelines as the primary choice for search, extraction, transformation, data analysis, and visualization. Upgrade to Python when task complexity warrants it.
-
 ## Hierarchy
 
-1. **Agent built-in tools**: For single-step tasks (search, read, edit). Use the edit tool for small edits to keep changes reviewable (avoid `sed`/`sd`).
-2. **CLI shell pipelines**: For chained operations (`|`) like regex capture or filter-aggregate without flooding context. Use `rg` (e.g. `rg -o`, `rg -N --no-filename`) in pipelines instead of `grep` or built-in search.
-3. **Inline Python (`python3 -c "..."`)**: When string logic or nested structures become awkward in pure shell.
-4. **Full Python script**: For multi-pass algorithms, stateful parsing, complex joins, heavy libraries (`pandas`, `numpy`), or non-terminal plots (`matplotlib`, `plotly`). Escalate early if a pipeline becomes unreadable.
+1. **Agent built-in tools** — single-step tasks (search, read, edit); use the edit tool for small edits to keep changes reviewable (avoid `sed`/`sd`).
+2. **CLI shell pipelines** — chained operations (`|`) like regex capture or filter-aggregate without flooding context; use `rg` (e.g. `rg -o`, `rg -N --no-filename`) instead of `grep` or built-in search.
+3. **Inline Python (`python3 -c "..."`)** — when string logic or nested structures become awkward in pure shell.
+4. **Full Python script** — multi-pass algorithms, stateful parsing, complex joins, heavy libraries (`pandas`, `numpy`), or non-terminal plots (`matplotlib`, `plotly`); escalate early if a pipeline becomes unreadable.
 
 ## Preferred Tools and Fallbacks
 
@@ -53,7 +51,7 @@ Check availability with `command -v` before using modern tools:
   ```bash
   rg -o 'ERROR \[\w+\]' server.log | sort | uniq -c | sort -rn | head -n 10
   ```
-- **Batch replace** (use agent edit tool for small edits):
+- **Batch replace**:
   ```bash
   fd -t f -e ts -e js -X sd 'v1/api' 'v2/api'
   ```
