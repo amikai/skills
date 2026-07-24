@@ -37,7 +37,6 @@ Use Fast Mode for quick, self-evident commits.
 ### Fast Mode Completion Criteria
 - [ ] Imperative mood in English (completes "If applied, this commit will _____").
 - [ ] Focuses on the outcome/goal, not code edits (e.g., `fix(auth): reject empty usernames`).
-- [ ] Contains no emojis, no AI attribution tags, and no pronouns.
 
 ---
 
