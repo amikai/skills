@@ -1,98 +1,103 @@
 ---
 name: modern-utility
 description: >
-  Prefer fast, modern CLI tools (Rust/Go/C) and Bash pipelines over Python scripts for daily tasks and lightweight data analysis. Use whenever searching codebases, performing batch file replacements, parsing JSON/YAML/TOML, or analyzing CSV/TSV/logs.
+  Prefer fast, modern CLI tools (Rust/Go/C) and Bash pipelines over Python scripts for daily tasks and lightweight data analysis. Use whenever searching codebases, performing batch file replacements, parsing JSON/YAML, or analyzing CSV/TSV/logs.
 ---
 
-# Modern Utility (Speed-Optimized for Coding Agents)
+# Modern Utility
 
-This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash pipelines as the primary choice for search, extraction, transformation, and lightweight data analysis tasks. Python serves as a secondary glue script or last resort when CLI pipelines alone become unreadable or inadequate.
+Use fast CLI tools and shell pipelines as the first choice for search,
+extraction, transformation, and lightweight data analysis. Use Python
+only as glue when a pipeline becomes unreadable, and a full Python
+script only when the task genuinely needs one.
 
-## Native Agent Tools vs. CLI Pipelines
+## Hierarchy
 
-- **Native Agent Tools (`grep_search`, `view_file`, `list_dir`)**: Use native tools for simple single-step code searches or direct file viewing.
-- **CLI Tools in Pipelines (`rg`, `fd`, `sd` via `run_command`)**: Use CLI tools when **chaining within Bash pipelines (`|`)**. Use `rg` to extract regex capture groups (`rg -o`), filter logs, or feed matching lines directly into downstream tools (`awk`, `sd`, `jaq`, `yq`, `sort`, `uniq`, `python3 -c`) in a single step without flooding the LLM context.
+1. **Agent built-in tools**: for single-step work — searching, reading
+   files, small edits. Small targeted edits should go through the
+   agent's edit tool so changes stay reviewable, not through `sed`/`sd`.
+2. **CLI pipeline in the shell**: when the work needs chaining (`|`) —
+   extracting regex capture groups, filter + aggregate, feeding matches
+   into downstream tools in one step without flooding context. In
+   pipelines, search with `rg` (e.g. `rg -o`, `rg -N --no-filename`),
+   not `grep` and not the agent's built-in search tool.
+3. **Inline Python glue (`python3 -c "..."`)**: when string logic or
+   nested-structure handling gets awkward in pure shell.
+4. **Full Python script**: only for multi-pass algorithms or heavy
+   libraries (`pandas`, `numpy`, ML).
 
-## Core Hierarchy & Execution Strategy
+## Preferred tools and fallbacks
 
-1. **CLI & Bash Pipeline (Primary)**: Use fast CLI tools (`rg`, `fd`, `sd`, `jaq`, `yq`, `qsv`, `duckdb`, `awk`) directly in shell pipelines (`|`). This delivers sub-10ms execution and zero workspace file pollution.
-2. **Python as Glue / Secondary Helper (`python3 -c`)**: When interacting with CLI output or when complex string transformation/regex parsing is awkward in pure Bash, use lightweight inline Python commands (`python3 -c "..."`) or quick glue scripts to combine CLI inputs and outputs.
-3. **Heavy Python Scripts (Last Resort)**: Reserve full Python scripts and heavy libraries (e.g., `pandas`, `scipy`) for tasks requiring complex multi-pass algorithms, machine learning models, or heavy matrix operations.
+Modern tools may not be installed. Check with `command -v` before
+relying on one, then fall back:
 
-## Tool Selection & Fallback Hierarchy
-
-- **Tier 1: Modern Rust / Go / C CLI (Primary Choice)**
-  - Tools: `rg`, `fd`, `sd`, `jaq`, `yq`, `qsv`, `duckdb`, `mlr`, `awk`
-  - Use for: Pipeline-based text extraction (`rg`), file discovery (`fd`), pattern replacement (`sd`), JSON querying (`jaq`), YAML/TOML querying and editing (`yq`), CSV/TSV processing (`qsv`), and in-memory SQL analytics (`duckdb`).
-- **Tier 2: Python as Glue / Inline Helper (`python3 -c "..."`)**
-  - Trigger: When complex string logic, regex manipulation, or nested JSON parsing becomes awkward in pure Bash pipelines.
-  - Use for: Formatting CLI output, transforming JSON objects, or gluing inputs/outputs between CLI commands.
-- **Tier 3: Dedicated Python Script / Heavy Frameworks**
-  - Trigger: When heavy third-party libraries or multi-stage algorithms are strictly required.
-  - Use for: `pandas`, `numpy`, machine learning models, complex multi-step data pipelines, or heavy mathematical operations.
-
-> **Pro Tip**: Check tool availability before assuming installation (gate third-party Python packages explicitly if used as fallback):
-> ```bash
-> command -v yq >/dev/null 2>&1 && yq '.version' config.yaml || python3 -c "import sys, yaml; print(yaml.safe_load(open('config.yaml')).get('version'))" 2>/dev/null || echo "No supported YAML parser found"
-> ```
-
-## Agent Speed Matrix (Task → Primary CLI vs Secondary Python)
-
-| Agent Task | Primary CLI Command (Piped in `run_command`) | Secondary Python Glue (`python3 -c`) |
+| Task | Preferred | Fallback |
 | :--- | :--- | :--- |
-| **Pipeline Search & Extract** | `rg -o 'error:\s*\w+' log/ \| sort \| uniq -c` | `python3 -c "import sys, re; ..."` |
-| **Find Files & Batch Replace** | `fd -t f -e ts -X sd 'old' 'new'` | `python3 -c "import pathlib; ..."` |
-| **JSON Key Extraction** | `jaq -r '.key' file.json \| sort` | `python3 -c "import json, sys; ..."` |
-| **YAML / TOML Key Extract & Edit** | `yq '.services.web.image' docker-compose.yml` | `python3 -c "import yaml, sys; ..."` |
-| **CSV/TSV Filtering** | `qsv select col1,col2 data.csv \| head -n 30` | `python3 -c "import csv, sys; ..."` |
-| **SQL on CSV/TSV/JSON** | `duckdb -c "SELECT ... FROM 'data.csv'"` | `python3 -c "import sqlite3..."` or `pandas` |
+| Search / extract | `rg` | `grep -rE` (only if `rg` is missing) |
+| Find files | `fd` | `find` |
+| Replace across files | `sd` | `perl -pi -e` or `sed -i` |
+| JSON | `jq` | `python3 -c "import json, sys; ..."` |
+| YAML | `yq` | `python3` + `yaml` |
+| CSV / TSV | `qsv` or `mlr` | `awk` or `python3 -c "import csv; ..."` |
+| SQL on CSV/JSON | `duckdb` | `sqlite3` or `python3` |
 
-## Command Patterns & Python Glue Recipes
+- `yq` means the Go implementation (https://github.com/mikefarah/yq),
+  not the Python one — verify with `yq --version` (the Go build prints
+  `mikefarah` in its version string).
+- Python fallbacks for JSON/CSV use only the standard library, but
+  YAML needs the third-party `yaml` (PyYAML) module — if both the CLI
+  tool and the module are missing, report that instead of trying
+  further workarounds.
+- Check availability with an explicit `if`, not an `&& … ||` chain
+  (a chain falls through to the fallback when the tool exists but the
+  query fails, hiding the real error):
 
-### 1. Codebase & File Operations
-* **Pipeline Regex Search & Extraction**:
   ```bash
-  rg -o 'ERROR \[\w+\]' server.log | sort | uniq -c | sort -rn
+  if command -v yq >/dev/null 2>&1; then
+    yq '.version' config.yaml
+  else
+    python3 -c 'import yaml; print(yaml.safe_load(open("config.yaml"))["version"])'
+  fi
   ```
-* **Batch String Replacement (Filename-Safe & File-Only)**:
+
+## Recipes
+
+- **Frequency count from logs**:
+  ```bash
+  rg -o 'ERROR \[\w+\]' server.log | sort | uniq -c | sort -rn | head -n 10
+  ```
+- **Batch replace** (bulk mechanical renames only; use the agent's edit
+  tool for a handful of edits):
   ```bash
   fd -t f -e ts -e js -X sd 'v1/api' 'v2/api'
   ```
-* **YAML Field Extraction & In-Place Editing**:
+- **YAML read / in-place edit**:
   ```bash
-  # Extract key
   yq '.metadata.name' deployment.yaml
-  # Update field in-place
   yq -i '.spec.replicas = 3' deployment.yaml
   ```
-
-### 2. Tabular Data & Log Analysis
-* **Inspect CSV/TSV Summary Statistics (Cache-Free)**:
+- **CSV summary stats** (`--cache-threshold 0` avoids sidecar cache files):
   ```bash
-  qsv stats --cache-threshold 0 --everything data.tsv | head -n 30
+  qsv stats --cache-threshold 0 --everything data.csv | head -n 30
   ```
-* **SQL Query directly on Log/CSV**:
+- **SQL directly on a file**:
   ```bash
-  duckdb -c "SELECT status_code, COUNT(*) AS cnt FROM 'access.log.csv' GROUP BY status_code ORDER BY cnt DESC;"
+  duckdb -c "SELECT status_code, COUNT(*) AS cnt FROM 'access.log.csv' GROUP BY status_code ORDER BY cnt DESC"
   ```
-* **Python Glue Example (using `python3 -c` with CLI output)**:
+- **Python glue on CLI output**:
   ```bash
-  # Extract JSON with jaq, then format or transform using python inline
-  jaq -c '.items[]' data.json | python3 -c "import sys, json; [print(j['id'], j['score']*100) for j in (json.loads(line) for line in sys.stdin)]"
-  ```
-
-### 3. Frequency & Truncation
-* **Top 10 Most Frequent Values (Cache-Free & Sorted Fallback)**:
-  ```bash
-  # Standard-input stream prevents qsv sidecar cache files
-  qsv frequency -s category -l 10 < data.csv
-  # CSV-aware fallback using Miller (mlr):
-  mlr --csv count-distinct -f category then sort -nr count then head -n 10 data.csv
+  jq -c '.items[]' data.json | python3 -c '
+  import sys, json
+  for line in sys.stdin:
+      item = json.loads(line)
+      print(item["id"], item["score"] * 100)
+  '
   ```
 
-## Practical Guidelines for Agents
+## Rules
 
-- ✅ **Native Tools vs. CLI Pipeline**: Use native tools (`grep_search`, `view_file`) for standard inspection. Use `rg` inside Bash pipelines (`run_command`) when filtering, extracting regex capture groups (`rg -o`), or piping search results directly into downstream tools.
-- ✅ **Prefer CLI + Pipelines**: Start with CLI tools for maximum speed and sub-10ms response.
-- ✅ **Use Python as Glue**: Feel free to use `python3 -c "..."` or a small Python snippet to process, format, or glue CLI outputs when Bash syntax becomes overly cryptic.
-- ❌ **Limit Output Size**: Always cap long outputs with `head -n 50`, `qsv slice -l 50`, or `rg -m 50` to avoid flooding tool output and wasting context tokens.
+- Cap long outputs (`… | head -n 50`, `qsv slice -l 50`) to avoid
+  flooding context. Note `rg -m 50` limits matches per file, not
+  globally — pipe through `head` for a global cap.
+- Prefer pipelines or `python3 -c` over writing one-off script files
+  into the workspace.
