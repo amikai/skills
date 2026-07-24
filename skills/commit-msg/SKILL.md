@@ -1,6 +1,6 @@
 ---
 name: commit-msg
-description: Generate Conventional Commit messages using Fast Mode for routine changes or Detailed Mode for rationale, mechanisms, and non-obvious choices. Use whenever writing, creating, or drafting a git commit.
+description: Generate commit-msg. Use whenever writing, creating, or drafting a git commit.
 ---
 
 # Git Commit Message Standard
