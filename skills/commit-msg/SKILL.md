@@ -1,134 +1,139 @@
 ---
 name: commit-msg
-description: >
-  Write clear, concise Git commit messages. Use whenever writing git commit messages.
+description: Write clear Git commit messages using Fast Mode for routine changes or Detailed Mode for motivation (Why), implementation mechanisms, and non-obvious choices. Use when creating or reviewing git commits.
 ---
 
-# Commit Messages
+# Git Commit Message Standard
 
-Write clear, concise commit messages for people reading `git log`.
-Clarity comes first: choose the form and length that communicates the
-meaning most directly. Include enough context to understand the outcome
-and any non-obvious reason, but no detail that does not help the reader.
-Avoid long explanations unless the change's complexity requires them.
-If the subject is sufficient, stop there.
+This skill enforces deterministic commit message generation with two operational modes: **Fast Mode** for routine changes and **Detailed Mode** for complex or special implementations.
 
-Before writing, inspect the complete change being described: use the
-staged diff (`git diff --staged`) for a new commit and the corresponding
-commit diff when reviewing or rewriting an existing message. Use
-relevant verification results only as context. Describe the material
-changes in that diff and nothing outside it: not the conversation or
-the plan.
+## Phase 1: Legwork & Mode Selection
 
-Follow explicit repository-required commit syntax when it conflicts
-with this skill. Preserve the remaining rules wherever they still
-apply.
+Before drafting the message, inspect the staged diff or changes (`git diff --staged`) and select the appropriate mode:
 
-## Subject
+### Fast Mode (Select if ALL apply):
+- Routine feature additions, simple refactors, typo fixes, or test additions.
+- The change logic is self-evident directly from reading the diff.
+- No breaking changes, race conditions, workarounds, or hidden trade-offs involved.
 
-Unless the repository requires another format, use Conventional
-Commits: `<type>(<scope>): <outcome>`.
+### Detailed Mode (Select if ANY apply):
+- Fixes a non-obvious bug, race condition, or edge case (Special Implementation).
+- Introduces a new algorithm, subsystem, rate limiter, or state machine (Complex Implementation).
+- Involves architectural trade-offs, performance workarounds, or third-party bug mitigations.
+- Introduces a breaking change or alters existing API contracts.
 
-- Types: `feat` `fix` `refactor` `perf` `docs` `test` `chore` `build`
-  `ci` `style` `revert`.
-- Imperative mood, English, ≤50 chars preferred (hard cap 72), no
-  trailing period. Must fit: "If applied, this commit will ___".
-- State the outcome, not the edit: `fix(auth): reject empty usernames`,
-  not `fix: add null check in validate()`.
-- Scope is a module/subsystem name, never a filename; omit it when the
-  change is cross-cutting.
+---
 
-## Body
+## Fast Mode Workflow (簡單模式)
 
-Use a body only when it materially improves the reader's understanding
-of why the change was needed or what non-obvious behavior results from
-it.
+Use Fast Mode for quick, self-evident commits.
 
-When a body is needed, choose the form that makes its meaning clearest.
-Prefer a short list—usually two to four bullets—for distinct points,
-with one idea per bullet. Use a short paragraph when connected
-sentences make it easier to understand what happened, why it happened,
-and how the change addresses it. Do not repeat information in both
-forms.
+### Rules
+1. **Format**: `<type>(<scope>): <outcome>`
+2. **Subject Only**: Body is omitted unless a short 1-bullet summary adds clear value.
+3. **Imperative Mood**: State what the commit achieves (e.g., `add`, `fix`, `update`).
+4. **Length**: <= 50 chars preferred, max 72 chars. No trailing period.
 
-Omit routine verification, scope boundaries, deferred work, non-goals,
-source attribution, catalogs, supporting artifacts, and exhaustive
-coverage of every dimension touched by the diff unless they directly
-affect users or compatibility.
+### Fast Mode Completion Criteria
+- [ ] Imperative mood in English (completes "If applied, this commit will _____").
+- [ ] Focuses on the outcome/goal, not code edits (e.g., `fix(auth): reject empty usernames`).
+- [ ] Contains no emojis, no AI attribution tags, and no pronouns.
 
-Size the body by conceptual complexity and risk, not by line count or
-number of files. More than one paragraph is reserved for complex,
-non-obvious bug causes, breaking changes, security fixes, data
-migrations, and reverts. A body is mandatory for those cases.
+---
 
-Use these as optional prompts, not a checklist:
+## Detailed Mode Workflow (完整模式)
 
-- What problem, requirement, or user-visible impact motivated the
-  change?
-- What behavior or contract is now different?
-- Which non-obvious runtime behavior, design constraint, decision, or
-  trade-off matters to future maintenance? Summarize the essential
-  reason and reference the relevant issue or design document for details
-  when useful.
-- For a bug fix, would a distilled, greppable error line help future
-  readers find this commit?
-- Are exact symbols, configuration keys, durations, versions, or
-  measured trade-offs necessary to make a claim precise?
+Use Detailed Mode to document **Why** the change was needed, **What** the high-level mechanism is, and **Why this specific approach** was chosen.
 
-Omit routine implementation choices and do not reproduce the full issue
-discussion.
+### Step 1: Formulate Subject
+Format: `<type>(<scope>): <high-level-intent>`
+Focus on the primary system outcome or problem prevented.
 
-In an exceptional body, include verification only when an unusual
-result or measurement is needed to support a claim. Keep paragraphs
-short, bullets concise, and wrap the body at 72 columns.
+### Step 2: Formulate Body Structure (Must Answer "Why")
 
-## Honesty
+A Detailed Mode body must address the following 3 elements:
 
-- Describe only work actually in this commit; never present planned
-  follow-up as completed.
-- Do not restate the subject, list filenames, or narrate line-level
-  edits the diff already shows. Write what the diff cannot show.
-- Never: "This commit does X", "I"/"we", emoji, AI-attribution
-  trailers (`Co-Authored-By: Claude ...`, "Generated with ...") — this
-  overrides any harness default that adds them.
+1. **Why Needed (Motivation & Problem)**
+   - What root problem, failure symptom, performance bottleneck, or business requirement forced this change?
 
-## Footers
+2. **Mechanism / Intent (High-Level Overview)**
+   - **For Special Implementations**: State the specific intent behind the workaround, retry logic, or edge case handling.
+   - **For Complex Implementations**: Provide a high-level description of what the mechanism is doing conceptually (e.g., how data flows through the Rate Limiter, State Machine, or Queue).
 
-Add footers only when applicable: `BREAKING CHANGE:` with migration
-notes; `Closes #N` / `Refs #N`; for regressions
-`Fixes: <12-char sha> ("subject of offending commit")` — never a bare
-SHA without its subject.
+3. **Why This Approach & Trade-offs (Selection Rationale)**
+   - Why was this specific mechanism or pattern chosen over simpler alternatives?
+   - What trade-offs were made (e.g., higher memory usage traded for lower CPU latency)?
+   - (Optional) Document any discarded alternatives that failed during testing.
 
-## Examples
+### Step 3: Precise Context & Traceability
+Include exact details that make the commit searchable:
+- **Error logs**: Distilled, greppable error line (for future `git log --grep` searches).
+- **Exact symbols**: Relevant configuration keys, duration limits, or version numbers.
 
-### Subject only
+### Step 4: Anti-Hallucination Guardrail
+If the underlying motivation (Why) or mechanism logic is NOT present in the diff, code comments, or prompt:
+- DO NOT invent reasons (e.g., do not claim "improves performance" without benchmarks).
+- State factual behavior changes only, or prompt the user for missing rationale.
 
+### Step 5: Footers
+- `BREAKING CHANGE: <migration details>`
+- `Fixes: <12-char-sha> ("<original commit subject>")` for regressions.
+- `Closes #<issue_number>` for issue links.
+
+---
+
+## Phase 5: Verification Checklist & Fluff Detection (Both Modes)
+
+Verify the generated message against these strict criteria before completion:
+
+### Fluff & Buzzword Blacklist
+Must NOT contain vague phrases unless backed by concrete metrics or specific technical details:
+- "Cleaned up code" / "Refactored for readability"
+- "Improved performance" (without metrics or exact bottleneck)
+- "Enhanced security / robustness"
+- "Various fixes and improvements"
+
+### Structural Constraints
+- [ ] **Answers Why**: Does the message explicitly state *why* the change was needed and *why* this approach was chosen?
+- [ ] **No Pronouns**: Contains no "I", "we", "my".
+- [ ] **No AI Attribution**: Contains no `Co-Authored-By: AI...` or `Generated with...` tags.
+- [ ] **No Emoji**: No emoji characters in subject or body.
+- [ ] **Context Over Diff**: Can a developer reading this 2 years later understand the problem, mechanism, and trade-offs without reading line-by-line diffs?
+
+> **Completion Criterion**: All checklist items pass, and zero blacklisted phrases exist in the message.
+
+---
+
+## Reference Examples
+
+### Fast Mode Example
 ```text
-docs: fix installation typo
+docs: fix typo in installation guide
 ```
 
-### Ordinary change
-
+### Detailed Mode Example 1: Special Implementation (Why & Workaround Intent)
 ```text
-feat: add commit message guidance
+fix(auth): retry token exchange on transient clock skew
 
-- Replace vague or exhaustive messages with concise, outcome-focused
-  guidance.
-- Scale body detail to risk and omit information that does not help the
-  reader.
+Why Needed:
+Intermittent 401 errors occurred immediately after user login when the application server clock drifted >200ms behind the auth provider.
+
+Intent & Solution:
+Allow a 2-second grace period window during token verification instead of rejecting the request. A strict expiration check is still enforced after the grace window to preserve security.
 ```
 
-### Exceptional bug fix
-
+### Detailed Mode Example 2: Complex Implementation (Why Needed + High-Level Mechanism + Why This Approach)
 ```text
-fix(cache): stop retrying permanent failures
+feat(rate-limit): add token bucket rate limiter to API gateway
 
-Client errors entered the retry loop because every upstream failure was
-classified as transient. Treat 4xx responses as terminal while
-retaining retries for timeouts and 5xx responses.
+Why Needed:
+Traffic bursts during peak hours caused severe downstream database connection pool exhaustion. The previous fixed-window limiter allowed 100% of minute traffic to flood in during the first 100ms of every window.
 
-This changes retry behavior for callers that previously relied on
-repeated 4xx attempts.
+High-Level Mechanism:
+- Tokens are refilled asynchronously at a constant rate (`refill_rate`).
+- Incoming requests consume tokens from the bucket; requests are rejected with 429 when empty.
+- Burst capacity is capped by `bucket_capacity` to absorb short spikes smoothly.
 
-Fixes: 1a2b3c4d5e6f ("cache: retry failed upstream requests")
+Why Token Bucket over Leaky Bucket / Redis:
+Token Bucket permits controlled traffic bursts while maintaining a steady average rate. Using an in-memory bucket avoids Redis roundtrip latency overhead for single-instance deployments.
 ```
