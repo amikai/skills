@@ -33,7 +33,7 @@ Check availability with `command -v` before using modern tools:
 
 ### Tool Notes
 
-- **`tokei`**: Excludes comments/blanks and respects `.gitignore`/`.ignore` (use `--no-ignore` / `--hidden` to widen). Key flags: `-t <Lang>`, `-f` (per-file breakdown), `-s code` (sort by code). In JSON mode (`-o json`), filter out the `"Total"` entry to avoid doubling aggregate sums.
+- **`tokei`**: Separates code from comments and blanks (only `code` count excludes them) and respects `.gitignore`/`.ignore` (totals sit below raw `wc -l`; use `--no-ignore` / `--hidden` to widen). Key flags: `-t <Lang>`, `-f` (per-file breakdown), `-s code` (sort by code). In JSON mode (`-o json`), filter out the `"Total"` entry to avoid doubling aggregate sums.
 - **`yq`**: Must be the Go build (github.com/mikefarah/yq). Verify with `yq --version` (contains `mikefarah`).
 - **Python fallbacks**: JSON/CSV use stdlib. YAML requires PyYAML (`import yaml`). If both CLI tool and `yaml` module are missing, report unavailability rather than attempting further workarounds.
 - **`uplot`**: Expects TSV by default (`-d` for delimiter, `-H` for headers) and outputs charts to **stderr** (preserving clean stdout data). Escalate to `matplotlib` for multi-series, annotations, or image exports.
@@ -101,4 +101,3 @@ Check availability with `command -v` before using modern tools:
 
 - **Cap output**: Use `| head -n 50` or `qsv slice -l 50` to avoid context flooding. (`rg -m 50` limits per-file matches, not globally; pipe to `head` for global capping).
 - **Avoid leftover scripts**: Prefer pipelines or `python3 -c` over leaving temporary `.py` files. Create formal script files only when logic complexity truly requires it.
-
