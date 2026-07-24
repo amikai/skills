@@ -24,7 +24,7 @@ Before drafting the message, inspect the staged diff or changes (`git diff --sta
 
 ---
 
-## Fast Mode Workflow (簡單模式)
+## Fast Mode Workflow
 
 Use Fast Mode for quick, self-evident commits.
 
@@ -41,7 +41,7 @@ Use Fast Mode for quick, self-evident commits.
 
 ---
 
-## Detailed Mode Workflow (完整模式)
+## Detailed Mode Workflow
 
 Use Detailed Mode to document **Why** the change was needed, **What** the high-level mechanism is, and **Why this specific approach** was chosen.
 
