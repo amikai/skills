@@ -8,9 +8,9 @@ description: >
 
 Use fast CLI tools and shell pipelines as the first choice for search,
 extraction, transformation, lightweight data analysis, and
-visualization. Use Python only as glue when a pipeline becomes
-unreadable, and a full Python script only when the task genuinely
-needs one.
+visualization. When the work outgrows them, Python is the right
+answer, not a defeat: the ordering exists so that simple work stays
+simple, not to keep scripts out.
 
 ## Hierarchy
 
@@ -24,8 +24,13 @@ needs one.
    not `grep` and not the agent's built-in search tool.
 3. **Inline Python glue (`python3 -c "..."`)**: when string logic or
    nested-structure handling gets awkward in pure shell.
-4. **Full Python script**: only for multi-pass algorithms or heavy
-   libraries (`pandas`, `numpy`, ML).
+4. **Full Python script**: for multi-pass algorithms, stateful
+   parsing, non-trivial joins, heavy libraries (`pandas`, `numpy`,
+   ML), or charts past a quick terminal glance (`matplotlib`, or
+   `plotly` when it should be interactive). Escalate here as soon as
+   the task genuinely needs it — a pipeline contorted to avoid a
+   script is harder to read, debug, and change than the script would
+   have been.
 
 ## Preferred tools and fallbacks
 
@@ -52,7 +57,10 @@ relying on one, then fall back:
   further workarounds.
 - `uplot` reads TSV by default (`-d` for other delimiters, `-H` for a
   header row) and draws the chart on **stderr**, leaving stdout free
-  for the data itself.
+  for the data itself. It answers "what does this look like" at a
+  glance; multiple series, annotations, controlled scales, or a saved
+  image file call for a full Python script — reach for `matplotlib`
+  rather than fighting a terminal plot.
 - Check availability with an explicit `if`, not an `&& … ||` chain
   (a chain falls through to the fallback when the tool exists but the
   query fails, hiding the real error):
@@ -113,5 +121,6 @@ relying on one, then fall back:
 - Cap long outputs (`… | head -n 50`, `qsv slice -l 50`) to avoid
   flooding context. Note `rg -m 50` limits matches per file, not
   globally — pipe through `head` for a global cap.
-- Prefer pipelines or `python3 -c` over writing one-off script files
-  into the workspace.
+- Prefer pipelines or `python3 -c` over leaving one-off script files
+  behind in the workspace — but when a task genuinely calls for a
+  script, write a real one instead of cramming it into `-c`.
