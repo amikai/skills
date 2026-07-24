@@ -1,7 +1,7 @@
 ---
 name: modern-utility
 description: >
-  Compose small, fast CLI tools into Bash pipelines before reaching for a Python script. Use whenever searching codebases, batch-replacing across files, or extracting, aggregating, and charting JSON/YAML, CSV/TSV, and logs.
+  Compose small, fast CLI tools into Bash pipelines before reaching for a Python script. Use whenever searching or sizing a codebase, batch-replacing across files, or extracting, aggregating, and charting JSON/YAML, CSV/TSV, and logs.
 ---
 
 # Modern Utility
@@ -41,6 +41,7 @@ relying on one, then fall back:
 | :--- | :--- | :--- |
 | Search / extract | `rg` | `grep -rE` (only if `rg` is missing) |
 | Find files | `fd` | `find` |
+| Lines of code by language | `tokei` | `scc` or `cloc`, else `fd -t f -e go -X wc -l` |
 | Replace across files | `sd` | `perl -pi -e` or `sed -i` |
 | JSON | `jq` | `python3 -c "import json, sys; ..."` |
 | YAML | `yq` | `python3` + `yaml` |
@@ -48,6 +49,12 @@ relying on one, then fall back:
 | SQL on CSV/JSON | `duckdb` | `sqlite3` or `python3` |
 | Terminal charts | `uplot` (YouPlot) | plain-text summary (`sort \| uniq -c`) |
 
+- `tokei` separates code from comments and blanks and honours
+  `.gitignore`/`.ignore`, so its totals sit below a raw `wc -l`
+  (`--no-ignore` and `--hidden` widen the scope back out). Narrow with
+  `-t Go`, break it out per file with `-f`, order with `-s code`. Under
+  `-o json`, `"Total"` is an entry beside the languages rather than a
+  header — drop it before aggregating or every number doubles.
 - `yq` means the Go implementation (https://github.com/mikefarah/yq),
   not the Python one — verify with `yq --version` (the Go build prints
   `mikefarah` in its version string).
@@ -83,6 +90,17 @@ relying on one, then fall back:
   tool for a handful of edits):
   ```bash
   fd -t f -e ts -e js -X sd 'v1/api' 'v2/api'
+  ```
+- **Codebase size at a glance** (bare `tokei` walks the current
+  directory; the second form is the per-file breakdown for one
+  language):
+  ```bash
+  tokei
+  tokei -t Python -f -s code
+  ```
+- **Language mix as a chart**:
+  ```bash
+  tokei -o json | jq -r 'to_entries | map(select(.key != "Total")) | sort_by(-.value.code)[] | "\(.key)\t\(.value.code)"' | uplot bar -t 'Code lines'
   ```
 - **YAML read / in-place edit**:
   ```bash
