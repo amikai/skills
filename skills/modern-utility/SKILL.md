@@ -31,9 +31,9 @@ This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash 
   - Trigger: When heavy third-party libraries or multi-stage algorithms are strictly required.
   - Use for: `pandas`, `numpy`, machine learning models, complex multi-step data pipelines, or heavy mathematical operations.
 
-> **Pro Tip**: Check tool availability with a runnable standard-library fallback before assuming installation:
+> **Pro Tip**: Check tool availability before assuming installation (gate third-party Python packages explicitly if used as fallback):
 > ```bash
-> command -v yq >/dev/null 2>&1 && yq '.version' config.yaml || python3 -c "import re; print(re.search(r'version:\s*([^\s]+)', open('config.yaml').read()).group(1))"
+> command -v yq >/dev/null 2>&1 && yq '.version' config.yaml || python3 -c "import sys, yaml; print(yaml.safe_load(open('config.yaml')).get('version'))" 2>/dev/null || echo "No supported YAML parser found"
 > ```
 
 ## Agent Speed Matrix (Task → Primary CLI vs Secondary Python)
@@ -43,7 +43,7 @@ This skill mandates using ultra-fast CLI tools (Rust/Go/C) and single-line Bash 
 | **Pipeline Search & Extract** | `rg -o 'error:\s*\w+' log/ \| sort \| uniq -c` | `python3 -c "import sys, re; ..."` |
 | **Find Files & Batch Replace** | `fd -t f -e ts -X sd 'old' 'new'` | `python3 -c "import pathlib; ..."` |
 | **JSON Key Extraction** | `jaq -r '.key' file.json \| sort` | `python3 -c "import json, sys; ..."` |
-| **YAML / TOML Key Extract & Edit** | `yq '.services.web.image' docker-compose.yml` | `python3 -c "import re, sys; ..."` |
+| **YAML / TOML Key Extract & Edit** | `yq '.services.web.image' docker-compose.yml` | `python3 -c "import yaml, sys; ..."` |
 | **CSV/TSV Filtering** | `qsv select col1,col2 data.csv \| head -n 30` | `python3 -c "import csv, sys; ..."` |
 | **SQL on CSV/TSV/JSON** | `duckdb -c "SELECT ... FROM 'data.csv'"` | `python3 -c "import sqlite3..."` or `pandas` |
 
