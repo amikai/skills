@@ -75,6 +75,15 @@ Format:
 - **No Collapsing**: Do not collapse substantial implementations into a one-line message.
 - **Anti-Hallucination**: Stick strictly to facts verifiable from the diff and execution logs.
 
+## Footers
+
+When applicable, place footers at the very bottom of the commit message after a blank line:
+
+- **Breaking Changes**: `BREAKING CHANGE: <details and migration instructions>`
+- **Issue Tracking**: `Closes #<issue_number>`, `Fixes #<issue_number>`, or `Refs #<issue_number>`
+- **Commit References**: `Fixes: <12-char-sha> ("<subject>")`
+- **Co-authors**: `Co-authored-by: Name <email>`
+
 ## Reference Examples
 
 ### Fast Mode
