@@ -65,7 +65,6 @@ npx skills add amikai/skills
 | Skill | What it does |
 |-------|--------------|
 | [commit-msg](skills/commit-msg/) | Craft concise, outcome-focused commit messages with detail matched to complexity and risk. |
-| [modern-utility](skills/modern-utility/) | Prefer fast, modern CLI tools (Rust/Go/C) and Bash pipelines over Python scripts for daily tasks and lightweight data analysis. |
 | [pr-msg](skills/pr-msg/) | Craft reviewer-friendly PR/MR titles and descriptions focused on intent, architecture, and key changes, with diagrams when useful. |
 <!-- catalog:end -->
 
