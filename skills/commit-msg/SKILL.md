@@ -56,17 +56,18 @@ Format:
 ```text
 <type>(<scope>): <outcome>
 
-<Detailed body treating the message as an exhaustive engineering record>
+<Detailed body containing key engineering record elements>
 ```
 
-### Body Requirements for Verbose Mode:
+### Body Content Requirements (Verbose Mode)
+The body should **contain** the following key elements as relevant. These can be written as natural paragraphs (combining 1–2 elements per paragraph) or organized into logical sections as appropriate:
 
-- **Concrete Repository Behavior & Boundaries**: Record behavior now present in the codebase. Name relevant modules, components, entry points, data contracts, and ownership boundaries.
-- **End-to-End Data & Control Flow**: Explain end-to-end data or control flow when material to understanding the change.
-- **Runtime Semantics**: Document critical runtime semantics such as caching, persistence, polling intervals, concurrency, fallback behavior, error handling, compatibility, and migration behavior.
-- **Specific Identifiers**: Name specific symbols, commands, configuration keys, durations, versions, error logs, and upstream revisions.
-- **Implementation Decisions & Trade-offs**: Capture important decisions and trade-offs, especially where the diff alone would not explain why the code works that way.
-- **Verification Record**: Detail tests added, load testing, or manual verification exercised to validate the implementation.
+- **Concrete Behavior & Boundaries**: Behavior present in the codebase, entry points, data contracts, and ownership boundaries.
+- **End-to-End Data & Control Flow**: Data or control flow when material to understanding the change.
+- **Runtime & Concurrency Semantics**: Caching, persistence, atomic operations, polling intervals, concurrency, fallback behavior, and error handling.
+- **Specific Identifiers**: Name specific symbols, commands, configuration keys, durations, versions, and error codes.
+- **Implementation Decisions & Trade-offs**: Key choices and rationale, especially where diff alone doesn't explain why.
+- **Verification Record**: Tests added, load testing, or manual verification exercised.
 
 ## Strict Rules & Constraints
 
@@ -109,21 +110,12 @@ Ran unit tests in `auth_test.go` with simulated clock drift up to 500ms.
 ```text
 feat(rate-limit): add token bucket rate limiter to API gateway
 
-Implement an in-memory token bucket algorithm for the API gateway entry point (`GatewayRouter`) to prevent downstream database connection pool exhaustion during traffic bursts.
+Implement an in-memory token bucket algorithm for `GatewayRouter` to prevent downstream database connection pool exhaustion during traffic bursts.
 
-Concrete Behavior & Ownership Boundaries:
-- Incoming HTTP requests to `GatewayRouter` pass through `TokenBucket.Consume()`.
-- Requests exceeding bucket capacity immediately return HTTP 429 (`ErrRateLimitExceeded`) without entering downstream handlers or acquiring DB pool connections.
-
-Data & Control Flow:
-- A background ticker task (`refill_interval = 100ms`) continuously replenishes tokens up to `bucket_capacity` (500).
-
-Runtime & Concurrency Semantics:
-- Concurrency: `TokenBucket` uses atomic CAS operations for token deduction to prevent lock contention under high concurrency.
-- Fallback & Error Handling: Rate limit breaches drop gracefully at the edge; zero thread blocking or queuing.
-- Persistence & Caching: Purely in-memory state; state resets on process restart. Avoids Redis round-trip latency overhead for single-instance deployments.
+Incoming HTTP requests to `GatewayRouter` pass through `TokenBucket.Consume()`. Requests exceeding capacity immediately return HTTP 429 (`ErrRateLimitExceeded`) without acquiring DB pool connections. State is maintained purely in-memory using atomic CAS operations for token deduction under high concurrency, with a background ticker (`100ms`) continuously replenishing tokens up to `bucket_capacity` (500). Pure in-memory state avoids Redis round-trip latency overhead for single-instance deployments.
 
 Verification:
 - Added unit tests in `token_bucket_test.go` verifying concurrent deduction across 100 goroutines.
 - Ran load test with `vegeta` at 1000 QPS verifying zero 500 errors and immediate 429 response on capacity overflow.
 ```
+
