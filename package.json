@@ -1,0 +1,19 @@
+{
+  "name": "amikai-skills",
+  "version": "0.1.0",
+  "description": "amikai's personal Agent Skills for coding agents.",
+  "license": "MIT",
+  "author": "amikai",
+  "homepage": "https://github.com/amikai/skills",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amikai/skills.git"
+  },
+  "keywords": [
+    "pi-package",
+    "skills"
+  ],
+  "pi": {
+    "skills": ["./skills"]
+  }
+}

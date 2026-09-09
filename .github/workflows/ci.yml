@@ -13,7 +13,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Validate JSON manifests
         run: |
-          for f in plugin.json .claude-plugin/*.json .codex-plugin/*.json .grok-plugin/*.json; do
+          for f in plugin.json package.json .claude-plugin/*.json .codex-plugin/*.json .grok-plugin/*.json; do
             python3 -m json.tool "$f" > /dev/null || exit 1
             echo "OK $f"
           done

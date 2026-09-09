@@ -51,6 +51,15 @@ grok plugin install amikai/skills
 </details>
 
 <details>
+<summary><strong>Pi</strong></summary>
+
+```bash
+pi install git:github.com/amikai/skills
+```
+
+</details>
+
+<details>
 <summary><strong>Skills CLI</strong></summary>
 
 ```bash
