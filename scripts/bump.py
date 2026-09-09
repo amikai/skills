@@ -20,6 +20,7 @@ MANIFESTS = [
     CANONICAL,
     ROOT / ".codex-plugin" / "plugin.json",
     ROOT / ".grok-plugin" / "plugin.json",
+    ROOT / "package.json",
 ]
 
 
