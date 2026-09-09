@@ -1,103 +1,29 @@
 ---
 name: modern-utility
 description: >
-  Compose fast CLI tools into Bash pipelines before writing Python scripts. Use for search, codebase sizing, batch replacement, and extracting, aggregating, or charting JSON/YAML, CSV/TSV, and logs.
+  Use when choosing CLI tools for search, codebase sizing, batch text replacement,
+  or extracting, aggregating, and charting JSON/YAML, CSV/TSV, and logs.
 ---
 
-# Modern Utility
+# Preferred CLI tools (Bash)
 
-Use fast CLI tools and shell pipelines as the primary choice for search, extraction, transformation, data analysis, and visualization. Upgrade to Python when task complexity warrants it.
+Prefer the tools below when they fit the task, including inside pipes (`| rg foo`, not `| grep foo`). Use classic tools when their capabilities or output better suit the task.
 
-## Hierarchy
+If a preferred tool is unavailable, use a suitable alternative without commentary. Do not hide execution errors.
 
-1. **Agent built-in tools**: For single-step tasks (search, read, edit). Use the edit tool for small edits to keep changes reviewable (avoid `sed`/`sd`).
-2. **CLI shell pipelines**: For chained operations (`|`) like regex capture or filter-aggregate without flooding context. Use `rg` (e.g. `rg -o`, `rg -N --no-filename`) in pipelines instead of `grep` or built-in search.
-3. **Inline Python (`python3 -c "..."`)**: When string logic or nested structures become awkward in pure shell.
-4. **Full Python script**: For multi-pass algorithms, stateful parsing, complex joins, heavy libraries (`pandas`, `numpy`), or non-terminal plots (`matplotlib`, `plotly`). Escalate early if a pipeline becomes unreadable.
+- Prefer `rg` to `grep` for searching file contents, filtering text streams, and extracting matches, including inside pipelines.
+- Prefer `fd` to `find` for locating files and directories by name, extension, or path, and passing selections to other commands.
+- Use `tokei` to measure codebase size, with breakdowns of code, comments, and blank lines by language or file.
+- Use `sd` for literal or regex text replacement, including consistent replacements across multiple files.
+- Use `jq` to query, filter, transform, and aggregate JSON, or format results for other commands.
+- Use `yq` (mikefarah/yq) to query, update, merge, and transform YAML, including multi-document files and conversion between supported formats.
+- Use `qsv` / `mlr` for tabular data processing such as selecting columns, filtering rows, sorting, joining, and computing summaries over CSV/TSV.
+- Use `duckdb` for SQL-based data exploration, joins, aggregation, window functions, and data conversion across tables and files such as CSV, JSON, and Parquet.
+- Use `uplot` (YouPlot) to visualize data in the terminal with charts such as bars, histograms, line plots, and scatter plots.
 
-## Preferred Tools and Fallbacks
+## Working principles
 
-Check availability with `command -v` before using modern tools:
-
-| Task | Preferred | Fallback |
-| :--- | :--- | :--- |
-| Search / extract | `rg` | `grep -rE` |
-| Find files | `fd` | `find` |
-| Lines of code | `tokei` | `scc` / `cloc`, or `fd -t f -e go -X wc -l` |
-| Replace across files | `sd` | `perl -pi -e` / `sed -i` |
-| JSON | `jq` | `python3 -c "import json, sys; ..."` |
-| YAML | `yq` | `python3` + `yaml` |
-| CSV / TSV | `qsv` / `mlr` | `awk` / `python3 -c "import csv, sys; ..."` |
-| SQL on CSV/JSON | `duckdb` | `sqlite3` / `python3` |
-| Terminal charts | `uplot` (YouPlot) | Plain-text summary (`sort \| uniq -c`) |
-
-### Tool Notes
-
-- **`tokei`**: Separates code from comments and blanks (only `code` count excludes them) and respects `.gitignore`/`.ignore` (totals sit below raw `wc -l`; use `--no-ignore` / `--hidden` to widen). Key flags: `-t <Lang>`, `-f` (per-file breakdown), `-s code` (sort by code). In JSON mode (`-o json`), filter out the `"Total"` entry to avoid doubling aggregate sums.
-- **`yq`**: Must be the Go build (github.com/mikefarah/yq). Verify with `yq --version` (contains `mikefarah`).
-- **Python fallbacks**: JSON/CSV use stdlib. YAML requires PyYAML (`import yaml`). If both CLI tool and `yaml` module are missing, report unavailability rather than attempting further workarounds.
-- **`uplot`**: Expects TSV by default (`-d` for delimiter, `-H` for headers) and outputs charts to **stderr** (preserving clean stdout data). Escalate to `matplotlib` for multi-series, annotations, or image exports.
-- **Tool Check Syntax**: Use explicit `if` statements instead of `&& ... ||` chains to prevent swallowing query errors:
-
-  ```bash
-  if command -v yq >/dev/null 2>&1; then
-    yq '.version' config.yaml
-  else
-    python3 -c 'import yaml; print(yaml.safe_load(open("config.yaml"))["version"])'
-  fi
-  ```
-
-## Recipes
-
-- **Log frequency count**:
-  ```bash
-  rg -o 'ERROR \[\w+\]' server.log | sort | uniq -c | sort -rn | head -n 10
-  ```
-- **Batch replace** (use agent edit tool for small edits):
-  ```bash
-  fd -t f -e ts -e js -X sd 'v1/api' 'v2/api'
-  ```
-- **Codebase size**:
-  ```bash
-  tokei
-  tokei -t Python -f -s code
-  ```
-- **Language mix chart**:
-  ```bash
-  tokei -o json | jq -r 'to_entries | map(select(.key != "Total")) | sort_by(-.value.code)[] | "\(.key)\t\(.value.code)"' | uplot bar -t 'Code lines'
-  ```
-- **YAML read / in-place edit**:
-  ```bash
-  yq '.metadata.name' deployment.yaml
-  yq -i '.spec.replicas = 3' deployment.yaml
-  ```
-- **CSV summary stats** (`--cache-threshold 0` disables sidecar files):
-  ```bash
-  qsv stats --cache-threshold 0 --everything data.csv | head -n 30
-  ```
-- **SQL directly on a file**:
-  ```bash
-  duckdb -c "SELECT status_code, COUNT(*) AS cnt FROM 'access.log.csv' GROUP BY status_code ORDER BY cnt DESC"
-  ```
-- **Pipeline chart** (`uplot count` aggregates directly):
-  ```bash
-  rg -oN --no-filename 'ERROR \[\w+\]' server.log | uplot count -t 'Errors'
-  ```
-- **Histogram**:
-  ```bash
-  qsv select response_ms data.csv | tail -n +2 | uplot hist --nbins 20
-  ```
-- **Inline Python glue**:
-  ```bash
-  jq -c '.items[]' data.json | python3 -c '
-  import sys, json
-  for line in sys.stdin:
-      item = json.loads(line)
-      print(item["id"], item["score"] * 100)
-  '
-  ```
-
-## Rules
-
-- **Cap output**: Use `| head -n 50` or `qsv slice -l 50` to avoid context flooding. (`rg -m 50` limits per-file matches, not globally; pipe to `head` for global capping).
-- **Avoid leftover scripts**: Prefer pipelines or `python3 -c` over leaving temporary `.py` files. Create formal script files only when logic complexity truly requires it.
+- Use the agent's read/edit tools for simple file operations and small edits; preview batch replacements and review the resulting diff.
+- Prefer CLI pipelines over ad-hoc scripts when they stay readable. Use Python or another suitable runtime when the logic warrants it.
+- Run temporary or standalone Python scripts with `uv run script.py` rather than invoking system `python3` directly. Declare dependencies in PEP 723 inline script metadata so others can run the file without extra flags.
+- Use parsers that understand the input format, and keep output focused to avoid flooding context.
